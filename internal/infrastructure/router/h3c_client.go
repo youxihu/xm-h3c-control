@@ -42,6 +42,11 @@ func NewH3CClientWithExpiryTime(host, username, password string, expiryHour, exp
 	}
 }
 
+// Close 关闭客户端（为了兼容优化后的接口）
+func (c *H3CClient) Close() {
+	// 原来的实现不需要关闭操作
+}
+
 // GetAllEntries 获取所有NAT映射条目
 func (c *H3CClient) GetAllEntries() ([]*nat.NATEntry, error) {
 	fmt.Printf("正在连接路由器 %s...\n", c.host)
@@ -75,6 +80,8 @@ func (c *H3CClient) GetAllEntries() ([]*nat.NATEntry, error) {
 
 // DeleteEntry 删除NAT映射条目
 func (c *H3CClient) DeleteEntry(entry *nat.NATEntry) error {
+	fmt.Printf("正在删除NAT条目: %s -> %s (%s)\n", entry.GetGlobalAddress(), entry.GetLocalAddress(), entry.Protocol)
+	
 	conn, err := c.connect()
 	if err != nil {
 		return fmt.Errorf("连接路由器失败: %v", err)
@@ -87,17 +94,20 @@ func (c *H3CClient) DeleteEntry(entry *nat.NATEntry) error {
 	}
 	defer session.Close()
 
-	// 构建删除命令
+	// 构建删除命令 - H3C路由器的正确格式
 	protocol := strings.ToLower(entry.Protocol)
-	deleteCmd := fmt.Sprintf("system-view\ninterface %s\nundo nat server protocol %s global %s %d\nquit\nquit\n",
+	deleteCmd := fmt.Sprintf("system-view\ninterface %s\nundo nat server protocol %s global %s %d\n",
 		entry.Interface, protocol, entry.GlobalIP, entry.GlobalPort)
 
+	fmt.Printf("执行删除命令: %s\n", strings.ReplaceAll(deleteCmd, "\n", " -> "))
+
 	// 执行删除命令
-	_, err = session.Output(deleteCmd)
+	output, err := session.Output(deleteCmd)
 	if err != nil {
-		return fmt.Errorf("删除NAT条目失败: %v", err)
+		return fmt.Errorf("删除NAT条目失败: %v, 输出: %s", err, string(output))
 	}
 
+	fmt.Printf("删除命令执行成功，输出: %s\n", string(output))
 	return nil
 }
 
