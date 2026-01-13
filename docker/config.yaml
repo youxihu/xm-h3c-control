@@ -1,0 +1,59 @@
+h3c-msr2600:
+  host: 192.168.1.1
+  user: dingtalk-vp
+  passwd: dingtalk@xm2026
+  Reminder_before_expiration: 15
+  # 过期时间设置 (24小时制)
+  expiry_time:
+    hour: 21    # 过期小时 (0-23)
+    minute: 30  # 过期分钟 (0-59)
+
+# 钉钉通知配置 - 支持多个群组
+dingtalk:
+  # 默认通知群（兜底）
+  default:
+    webhook: "https://oapi.dingtalk.com/robot/send?access_token=bfd9580e7d49a959e986c7438bfa014ddb694b7b1a695fab1b46c7010b06ebad"
+    secret: "SEC0b0f0a3d4f43d1d21d0a66d0d4dbd**0266d49aadbae66d12fe97b22fa"
+    name: "默认通知群"
+  
+  # 服务器分组通知配置
+  groups:
+    # 巡检相关服务器
+    inspection:
+      webhook: "https://oapi.dingtalk.com/robot/send?access_token=bfd9580e7d49a959e986c7438bfa014ddb694b7b1a695fab1b46c7010b06ebad"
+      secret: "SEC0b0f0a3d4f43d1d21d0a66d0d4dbd6b5c16450266d49aadbae66d12fe97b22fa"
+      name: "巡检项目组"
+      servers:
+        - "192.168.1.112"  # 巡检测试演示服务器
+        - "192.168.1.150"  # 巡检RTX4090服务器
+        - "192.168.1.218"
+    
+    # 东吴相关服务器
+    dongwu:
+      webhook: "https://oapi.dingtalk.com/robot/send?access_token=bfd9580e7d49a959e986c7438bfa014ddb694b7b1a695fab1b46c7010b06ebad"
+      secret: "SEC0b0f0a3d4f43d1d21d0a66d0d4dbd6b5c1645**49aadbae66d12fe97b22fa"
+      name: "东吴项目组"
+      servers:
+        - "192.168.1.116"  # 东吴测试服务器
+        - "192.168.1.109"  # 开发服务器-东吴
+    
+    # 低空侦测相关服务器
+    lowaltitude:
+      webhook: "https://oapi.dingtalk.com/robot/send?access_token=bfd9580e7d49a959e986c7438bfa014ddb694b7b1a695fab1b46c7010b06ebad"
+      secret: "SEC0b0f0a3d4f43d1d21d0a66d0d4dbd6b5c164502*e66d12fe97b22fa"
+      name: "低空侦测项目组"
+      servers:
+        - "192.168.1.109"  # 开发服务器-低空侦测
+        - "192.168.1.187"  # 低空侦测-苏州
+        - "192.168.1.93"   # 低空侦测-杭实
+        - "192.168.1.94"   # 低空侦测-测试
+    
+    # 基础设施相关服务器
+    infrastructure:
+      webhook: "https://oapi.dingtalk.com/robot/send?access_token=bfd9580e7d49a959e986c7438bfa014ddb694b7b1a695fab1b46c7010b06ebad"
+      secret: "SEC0b0f0a3d4f43d1d21d0a66d0d4dbd6b**6d49aadbae66d12fe97b22fa"
+      name: "基础设施组"
+      servers:
+        - "192.168.1.90"   # 开发主机-特勤虚拟机
+        - "192.168.1.99"   # 商汤门禁
+        - "192.168.1.2"    # 老服务器-基础设施
