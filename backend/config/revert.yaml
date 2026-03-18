@@ -1,0 +1,22 @@
+# 端口映射配置 - 内网端口到外网端口的映射
+port_mappings:
+  61002: 65530
+  61100: 65531
+  48080: 65532
+
+hosts:
+  192.168.1.211:
+    env: dev
+    services:
+      drone_control_link: 61002
+      drone_data_link: 61100
+      dongwu_backend: 48080
+  192.168.1.221:
+    env: zc-test
+    services:
+      drone_control_link: 61002
+      drone_data_link: 61100
+  192.168.1.218:
+    env: dw-test
+    services:
+      dongwu_backend: 48080

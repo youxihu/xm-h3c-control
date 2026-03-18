@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Port Status</title>
+</head>
+<body>
+    <h1>Debug Port Status</h1>
+    <div id="debug"></div>
+    
+    <script>
+        async function debugPortStatus() {
+            try {
+                // 获取端口配置
+                const configResponse = await fetch('http://localhost:8080/api/port-config');
+                const configData = await configResponse.json();
+                console.log('Port Config:', configData);
+                
+                // 获取端口状态
+                const statusResponse = await fetch('http://localhost:8080/api/port-status');
+                const statusData = await statusResponse.json();
+                console.log('Port Status:', statusData);
+                
+                // 模拟前端处理逻辑
+                const portMappings = {};
+                const originalMappings = {};
+                
+                // 初始化键名（使用外网端口）
+                configData.ports.forEach(port => {
+                    const key = `port${port.external_port}`;
+                    portMappings[key] = '';
+                    originalMappings[key] = '';
+                    console.log(`初始化键: ${key}`);
+                });
+                
+                console.log('初始化后的portMappings键:', Object.keys(portMappings));
+                
+                // 更新状态
+                for (const key in statusData) {
+                    const mappingKey = key.replace('_', ''); // port_65530 -> port65530
+                    console.log(`处理: ${key} -> ${mappingKey}`);
+                    if (portMappings.hasOwnProperty(mappingKey)) {
+                        portMappings[mappingKey] = statusData[key];
+                        originalMappings[mappingKey] = statusData[key];
+                        console.log(`✓ 更新 ${mappingKey} = ${statusData[key]}`);
+                    } else {
+                        console.log(`✗ 键名不匹配: ${mappingKey}`);
+                    }
+                }
+                
+                console.log('最终portMappings:', portMappings);
+                
+                // 显示结果
+                document.getElementById('debug').innerHTML = `
+                    <h2>Port Config:</h2>
+                    <pre>${JSON.stringify(configData, null, 2)}</pre>
+                    <h2>Port Status:</h2>
+                    <pre>${JSON.stringify(statusData, null, 2)}</pre>
+                    <h2>Final Port Mappings:</h2>
+                    <pre>${JSON.stringify(portMappings, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('debug').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+        
+        debugPortStatus();
+    </script>
+</body>
+</html>

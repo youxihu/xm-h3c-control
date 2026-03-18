@@ -1,0 +1,24 @@
+# H3C路由器配置
+h3c-msr2600:
+  host: 192.168.1.1
+  user: dingtalk-vp
+  passwd: dingtalk@xm2026
+  external_ip: 117.149.14.2  # 外网IP
+  Reminder_before_expiration: 10
+  # 过期时间设置 (24小时制)
+  expiry_time:
+    hour: 21    # 过期小时 (0-23)
+    minute: 30  # 过期分钟 (0-59)
+
+# Redis配置
+redis:
+  host: 192.168.1.218
+  port: 6379
+  password: "ningzaichun"
+  db: 0
+
+# 缓存配置
+cache:
+  update_interval_minutes: 15  # 生产环境15分钟更新一次
+  test_interval_minutes: 1     # 测试环境1分钟更新一次
+  use_test_interval: false      # 是否使用测试间隔
