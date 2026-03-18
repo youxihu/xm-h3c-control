@@ -2,6 +2,7 @@
 .idea/
 *.iml
 .vscode/
+.kiro/
 
 # 编译产物
 bin/
