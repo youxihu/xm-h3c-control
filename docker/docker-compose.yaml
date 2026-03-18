@@ -1,0 +1,12 @@
+services:
+  port-switch:
+    image: registry.cn-hangzhou.xmkj/tools/xm-switch-port:v0.0.1
+    container_name: xm-port-switch
+    ports:
+      - "25003:25003"
+    volumes:
+      - ./backend/config:/app-acc/config:ro  # 配置文件挂载，只读
+    environment:
+      - TZ=Asia/Shanghai
+      - PORT=25003  # 设置后端监听端口
+    restart: always

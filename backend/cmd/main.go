@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"port-switch-backend/internal/application/service"
@@ -82,8 +83,14 @@ func main() {
 	// 8. 设置路由并启动服务器
 	r := router.SetupRoutes(portHandler)
 
-	log.Println("Server starting on :8080")
-	if err := r.Run(":8080"); err != nil {
+	// 获取端口配置
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	
+	log.Printf("Server starting on :%s", port)
+	if err := r.Run(":" + port); err != nil {
 		log.Fatalf("服务器启动失败: %v", err)
 	}
 }

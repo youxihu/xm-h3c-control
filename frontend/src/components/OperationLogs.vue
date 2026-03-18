@@ -115,11 +115,19 @@ import {
 } from '@element-plus/icons-vue'
 import axios from 'axios'
 
-// API基础URL
+// API基础URL - 使用相对路径，通过nginx代理转发
 const getApiBaseUrl = () => {
-  const hostname = window.location.hostname
-  const port = '8080'
-  return `http://${hostname}:${port}`
+  // 在生产环境中，nginx会将/api路径代理到后端
+  // 开发环境可以通过环境变量或配置文件指定
+  if (import.meta.env.DEV) {
+    // 开发环境使用动态端口
+    const hostname = window.location.hostname
+    const port = '8080'
+    return `http://${hostname}:${port}`
+  } else {
+    // 生产环境使用相对路径，通过nginx代理
+    return ''
+  }
 }
 
 const API_BASE_URL = getApiBaseUrl()

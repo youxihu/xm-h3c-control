@@ -132,11 +132,19 @@ import { ArrowDown, ArrowRight, CircleCheckFilled, DocumentAdd, Clock } from '@e
 import axios from 'axios'
 import OperationLogs from './components/OperationLogs.vue'
 
-// API基础URL - 动态获取当前主机IP
+// API基础URL - 使用相对路径，通过nginx代理转发
 const getApiBaseUrl = () => {
-  const hostname = window.location.hostname
-  const port = '8080'
-  return `http://${hostname}:${port}`
+  // 在生产环境中，nginx会将/api路径代理到后端
+  // 开发环境可以通过环境变量或配置文件指定
+  if (import.meta.env.DEV) {
+    // 开发环境使用动态端口
+    const hostname = window.location.hostname
+    const port = '8080'
+    return `http://${hostname}:${port}`
+  } else {
+    // 生产环境使用相对路径，通过nginx代理
+    return ''
+  }
 }
 
 // 获取客户端标识（使用内网IP+浏览器指纹）

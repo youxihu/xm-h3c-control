@@ -3,7 +3,9 @@
 *.iml
 .vscode/
 .kiro/
-
+backend/bin/
+frontend/dist/
+frontend/*.zip
 # 编译产物
 bin/
 *.exe
