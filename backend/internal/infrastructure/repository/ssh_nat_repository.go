@@ -118,7 +118,7 @@ func (r *SSHNATRepository) DeleteMapping(mapping *entity.NATMapping) error {
 // connect 连接路由器
 func (r *SSHNATRepository) connect() (*ssh.Client, error) {
 	log.Printf("正在连接路由器 %s，用户: %s", r.routerConfig.Host, r.routerConfig.User)
-	
+
 	sshConfig := &ssh.ClientConfig{
 		User: r.routerConfig.User,
 		Auth: []ssh.AuthMethod{
@@ -158,7 +158,7 @@ func (r *SSHNATRepository) executeCommand(client *ssh.Client, command string) (s
 // getCurrentNATMappings 获取当前NAT映射
 func (r *SSHNATRepository) getCurrentNATMappings(client *ssh.Client) ([]*entity.NATMapping, error) {
 	log.Printf("开始获取NAT映射配置")
-	
+
 	output, err := r.executeCommand(client, "screen-length disable\ndisplay nat server")
 	if err != nil {
 		log.Printf("获取NAT配置失败: %v", err)
@@ -166,17 +166,17 @@ func (r *SSHNATRepository) getCurrentNATMappings(client *ssh.Client) ([]*entity.
 	}
 
 	log.Printf("NAT配置输出长度: %d 字节", len(output))
-	if len(output) > 0 {
-		log.Printf("NAT配置输出前500字符: %s", output[:min(500, len(output))])
-	}
+	//if len(output) > 0 {
+	//	log.Printf("NAT配置输出前500字符: %s", output[:min(500, len(output))])
+	//}
 
 	mappings := r.parseNATOutput(output)
 	log.Printf("解析到 %d 个NAT映射", len(mappings))
-	
-	for _, mapping := range mappings {
-		log.Printf("映射: %s", mapping.String())
-	}
-	
+
+	//for _, mapping := range mappings {
+	//	log.Printf("映射: %s", mapping.String())
+	//}
+
 	return mappings, nil
 }
 
@@ -189,12 +189,12 @@ interface GigabitEthernet0/0
 nat server protocol %s global %s %d inside %s %d description %s
 quit
 quit`,
-		mapping.Protocol(), mapping.ExternalIP(), mapping.ExternalPort(), 
+		mapping.Protocol(), mapping.ExternalIP(), mapping.ExternalPort(),
 		mapping.InternalIP(), mapping.InternalPort(), mapping.Description(),
 	)
 
 	log.Printf("执行创建命令序列: %s", strings.ReplaceAll(createCmd, "\n", " -> "))
-	
+
 	session, err := client.NewSession()
 	if err != nil {
 		return fmt.Errorf("创建SSH会话失败: %v", err)
@@ -224,21 +224,21 @@ nat server protocol %s global %s %d inside %s %d description %s
 quit
 quit`,
 		oldMapping.Protocol(), oldMapping.ExternalIP(), oldMapping.ExternalPort(),
-		newMapping.Protocol(), newMapping.ExternalIP(), newMapping.ExternalPort(), 
+		newMapping.Protocol(), newMapping.ExternalIP(), newMapping.ExternalPort(),
 		newMapping.InternalIP(), newMapping.InternalPort(), newMapping.Description(),
 	)
 
 	log.Printf("执行切换命令序列:")
 	log.Printf("1. system-view")
 	log.Printf("2. interface GigabitEthernet0/0")
-	log.Printf("3. undo nat server protocol %s global %s %d (删除旧映射)", 
+	log.Printf("3. undo nat server protocol %s global %s %d (删除旧映射)",
 		oldMapping.Protocol(), oldMapping.ExternalIP(), oldMapping.ExternalPort())
-	log.Printf("4. nat server protocol %s global %s %d inside %s %d description %s (创建新映射)", 
-		newMapping.Protocol(), newMapping.ExternalIP(), newMapping.ExternalPort(), 
+	log.Printf("4. nat server protocol %s global %s %d inside %s %d description %s (创建新映射)",
+		newMapping.Protocol(), newMapping.ExternalIP(), newMapping.ExternalPort(),
 		newMapping.InternalIP(), newMapping.InternalPort(), newMapping.Description())
 	log.Printf("5. quit")
 	log.Printf("6. quit")
-	
+
 	session, err := client.NewSession()
 	if err != nil {
 		return fmt.Errorf("创建SSH会话失败: %v", err)
@@ -288,13 +288,13 @@ quit`,
 func (r *SSHNATRepository) parseNATOutput(output string) []*entity.NATMapping {
 	var mappings []*entity.NATMapping
 	lines := strings.Split(output, "\n")
-	
+
 	var protocol, externalIP, internalIP, description string
 	var externalPort, internalPort int
-	
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		
+
 		// 匹配协议行
 		if strings.HasPrefix(line, "Protocol:") {
 			protocolStr := strings.TrimSpace(strings.TrimPrefix(line, "Protocol:"))
@@ -304,23 +304,23 @@ func (r *SSHNATRepository) parseNATOutput(output string) []*entity.NATMapping {
 				protocol = "udp"
 			}
 		}
-		
+
 		// 匹配全局IP/端口行
 		if strings.HasPrefix(line, "Global IP/port:") {
 			globalAddr := strings.TrimSpace(strings.TrimPrefix(line, "Global IP/port:"))
 			r.parseAddress(globalAddr, &externalIP, &externalPort)
 		}
-		
+
 		// 匹配本地IP/端口行
 		if strings.HasPrefix(line, "Local IP/port") {
 			localAddr := strings.TrimSpace(strings.Split(line, ":")[1])
 			r.parseAddress(localAddr, &internalIP, &internalPort)
 		}
-		
+
 		// 匹配描述行
 		if strings.HasPrefix(line, "Description") {
 			description = strings.TrimSpace(strings.Split(line, ":")[1])
-			
+
 			// 创建映射实体
 			if protocol != "" && externalIP != "" && internalIP != "" {
 				mapping, err := entity.NewNATMapping(
@@ -331,13 +331,13 @@ func (r *SSHNATRepository) parseNATOutput(output string) []*entity.NATMapping {
 					mappings = append(mappings, mapping)
 				}
 			}
-			
+
 			// 重置变量
 			protocol, externalIP, internalIP, description = "", "", "", ""
 			externalPort, internalPort = 0, 0
 		}
 	}
-	
+
 	return mappings
 }
 
@@ -345,18 +345,18 @@ func (r *SSHNATRepository) parseNATOutput(output string) []*entity.NATMapping {
 func (r *SSHNATRepository) parseAddress(addr string, ip *string, port *int) error {
 	re := regexp.MustCompile(`(\d+\.\d+\.\d+\.\d+)/(\d+)`)
 	matches := re.FindStringSubmatch(addr)
-	
+
 	if len(matches) != 3 {
 		return fmt.Errorf("无效的地址格式: %s", addr)
 	}
-	
+
 	*ip = matches[1]
-	
+
 	portNum, err := strconv.Atoi(matches[2])
 	if err != nil {
 		return fmt.Errorf("无效的端口号: %s", matches[2])
 	}
-	
+
 	*port = portNum
 	return nil
 }

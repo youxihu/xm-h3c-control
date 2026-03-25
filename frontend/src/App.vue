@@ -3,7 +3,7 @@
     <div class="header">
       <h1 class="title">星目路由器端口快切工具</h1>
     </div>
-    
+
     <div class="main-layout">
       <!-- 主内容区 -->
       <div class="main-content">
@@ -13,13 +13,13 @@
         <div class="section-header">
           <h2 class="section-title">当前端口映射状态</h2>
         </div>
-        
+
         <div class="status-grid">
-          <div 
-            v-for="port in portConfigs" 
+          <div
+            v-for="port in portConfigs"
             :key="`status-${port.external_port}`"
-            class="status-item" 
-            :class="{ 
+            class="status-item"
+            :class="{
               'current': portMappings[`port_${port.external_port}`] === originalMappings[`port_${port.external_port}`],
               'changed': portMappings[`port_${port.external_port}`] !== originalMappings[`port_${port.external_port}`]
             }"
@@ -51,12 +51,12 @@
             <span class="status-text">{{ hasChanges ? '有待保存的变更' : '配置已同步' }}</span>
           </div>
         </div>
-        
+
         <div class="port-cards">
-          <el-card 
-            v-for="port in portConfigs" 
+          <el-card
+            v-for="port in portConfigs"
             :key="port.internal_port"
-            class="port-card" 
+            class="port-card"
             shadow="never"
           >
             <template #header>
@@ -68,18 +68,18 @@
                 <el-icon class="expand-icon"><ArrowDown /></el-icon>
               </div>
             </template>
-            
+
             <div class="port-options">
               <el-radio-group v-model="portMappings[`port_${port.external_port}`]" class="radio-group">
-                <div 
-                  v-for="option in port.options" 
+                <div
+                  v-for="option in port.options"
                   :key="option.ip"
                   class="radio-item"
                 >
                   <el-radio :value="option.ip" class="custom-radio">
                     <span class="ip-text">{{ option.ip }}</span>
-                    <el-tag 
-                      class="env-tag" 
+                    <el-tag
+                      class="env-tag"
                       :class="`${option.environment}-tag`"
                       size="small"
                     >
@@ -91,15 +91,12 @@
             </div>
           </el-card>
         </div>
-      </div>
 
-      <!-- 操作与留痕区 -->
-      <div class="operation-section">
-        <!-- 操作按钮区 - 移到配置区下方居中 -->
+        <!-- 操作按钮区 - 合并到配置区内 -->
         <div class="action-area">
-          <el-button 
-            type="primary" 
-            size="large" 
+          <el-button
+            type="primary"
+            size="large"
             class="save-button"
             :class="{ 'has-changes': hasChanges, 'no-changes': !hasChanges }"
             @click="saveConfiguration"
@@ -150,20 +147,20 @@ const getApiBaseUrl = () => {
 // 获取客户端标识（使用内网IP+浏览器指纹）
 const getClientExternalIP = async () => {
   console.log('使用内网IP+浏览器指纹作为客户端标识')
-  
+
   // 使用内网IP + 浏览器指纹作为唯一标识
   const internalIP = getClientInternalIP()
-  
+
   // 生成浏览器指纹（基于用户代理、屏幕分辨率等）
   const fingerprint = btoa(
-    navigator.userAgent + 
-    screen.width + 'x' + screen.height + 
+    navigator.userAgent +
+    screen.width + 'x' + screen.height +
     new Date().getTimezoneOffset()
   ).substr(0, 8)
-  
+
   const clientId = `${internalIP}-${fingerprint}`
   console.log('生成的客户端标识:', clientId)
-  
+
   return clientId
 }
 
@@ -183,13 +180,13 @@ const getClientInternalIP = () => {
 const initializeIPHeaders = async () => {
   const clientInternalIP = getClientInternalIP()
   const clientExternalIP = await getClientExternalIP()
-  
+
   axios.defaults.headers.common['X-Client-Internal-IP'] = clientInternalIP
   axios.defaults.headers.common['X-Client-External-IP'] = clientExternalIP
-  
-  console.log('客户端IP信息:', { 
-    internal: clientInternalIP, 
-    external: clientExternalIP 
+
+  console.log('客户端IP信息:', {
+    internal: clientInternalIP,
+    external: clientExternalIP
   })
 }
 
@@ -227,20 +224,20 @@ const fetchPortConfig = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/port-config`)
     portConfigs.value = response.data.ports
-    
+
     // 初始化映射状态 - 使用外网端口作为键名
     const newPortMappings = {}
     const newOriginalMappings = {}
-    
+
     portConfigs.value.forEach(port => {
       const key = `port_${port.external_port}` // 使用带下划线的格式，与后端一致
       newPortMappings[key] = ''
       newOriginalMappings[key] = ''
     })
-    
+
     portMappings.value = newPortMappings
     originalMappings.value = newOriginalMappings
-    
+
     console.log('获取到的端口配置:', response.data)
     console.log('初始化的portMappings键:', Object.keys(portMappings.value))
   } catch (error) {
@@ -256,14 +253,14 @@ const fetchPortStatus = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/port-status`)
     const status = response.data
-    
+
     console.log('从缓存获取的状态:', status)
     console.log('当前portMappings键名:', Object.keys(portMappings.value))
-    
+
     // 创建新的映射对象
     const newPortMappings = { ...portMappings.value }
     const newOriginalMappings = { ...originalMappings.value }
-    
+
     // 更新当前映射状态
     for (const key in status) {
       // 直接使用后端返回的键名，不需要转换
@@ -277,20 +274,20 @@ const fetchPortStatus = async () => {
         console.log('可用的键名:', Object.keys(newPortMappings))
       }
     }
-    
+
     console.log('更新前的portMappings:', portMappings.value)
     console.log('准备设置的newPortMappings:', newPortMappings)
-    
+
     // 一次性更新所有数据
     portMappings.value = newPortMappings
     originalMappings.value = newOriginalMappings
-    
+
     console.log('更新后的portMappings:', portMappings.value)
-    
+
     // 等待下一个tick确保DOM更新
     await nextTick()
     console.log('DOM更新完成，最终选中状态:', portMappings.value)
-    
+
   } catch (error) {
     console.error('获取端口状态失败:', error)
     ElMessage.error('获取端口状态失败，请检查后端服务')
@@ -306,7 +303,7 @@ const saveConfiguration = async () => {
     const key = `port_${port.external_port}` // 使用带下划线的格式
     return portMappings.value[key] // 使用.value访问ref
   })
-  
+
   if (!allConfigured) {
     ElMessage.warning('请为所有端口选择映射地址')
     return
@@ -319,11 +316,11 @@ const saveConfiguration = async () => {
   }
 
   saving.value = true
-  
+
   try {
     // 构建批量配置请求
     const configs = []
-    
+
     portConfigs.value.forEach(port => {
       const key = `port_${port.external_port}` // 使用带下划线的格式，与后端一致
       if (portMappings.value[key] !== originalMappings.value[key]) {
@@ -340,17 +337,17 @@ const saveConfiguration = async () => {
     const response = await axios.post(`${API_BASE_URL}/api/apply-config`, {
       configs: configs
     })
-    
+
     console.log('配置应用结果:', response.data)
-    
+
     // 重新获取状态
     await fetchPortStatus()
-    
+
     // 刷新操作日志
     if (operationLogsRef.value) {
       operationLogsRef.value.refreshLogs()
     }
-    
+
     ElMessage.success('配置保存成功！')
   } catch (error) {
     console.error('保存配置失败:', error)
@@ -371,19 +368,17 @@ onMounted(async () => {
 })
 </script>
 <style scoped>
-/* 确保页面不出现滚动条 */
+/* 确保页面可以滚动，移除overflow hidden */
 :global(html, body) {
-  overflow: hidden;
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
 .app-container {
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 10vh 16px;
+  padding: 2vh 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -391,7 +386,7 @@ onMounted(async () => {
 
 .header {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   flex-shrink: 0;
 }
 
@@ -409,8 +404,6 @@ onMounted(async () => {
   max-width: 1400px;
   margin: 0 auto;
   flex: 1;
-  min-height: 0;
-  overflow: hidden;
 }
 
 .main-content {
@@ -424,16 +417,15 @@ onMounted(async () => {
 .console-layout {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   height: 100%;
   overflow: hidden;
 }
 
 /* 右侧悬浮日志面板 */
 .logs-sidebar {
-  position: sticky;
-  top: 20px;
-  height: fit-content;
+  width: auto;
+  flex-shrink: 0;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 16px;
@@ -441,6 +433,8 @@ onMounted(async () => {
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   transition: all 0.3s ease;
+  height: fit-content;
+  align-self: flex-start;
 }
 
 /* 配置区 */
@@ -448,7 +442,7 @@ onMounted(async () => {
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+  padding: 12px;
   flex-shrink: 0;
 }
 
@@ -494,7 +488,7 @@ onMounted(async () => {
 
 .port-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
@@ -527,14 +521,14 @@ onMounted(async () => {
 }
 
 .port-desc {
-  font-size: 14px;
+  font-size: 16px;
   color: #2c3e50;
   font-weight: 600;
   text-align: center;
 }
 
 .port-title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400;
   color: #999;
   text-align: center;
@@ -592,7 +586,7 @@ onMounted(async () => {
 
 .ip-text {
   font-family: 'Monaco', 'Menlo', monospace;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: #2c3e50;
 }
@@ -600,7 +594,7 @@ onMounted(async () => {
 .env-tag {
   font-weight: 500;
   border: none;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .dev-tag {
@@ -623,29 +617,30 @@ onMounted(async () => {
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  padding: 16px;
   text-align: center;
   flex-shrink: 0;
 }
 
 .status-grid {
   display: flex;
-  justify-content: center;
-  gap: 24px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  max-width: 100%;
 }
 
 .status-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 24px;
+  gap: 8px;
+  padding: 12px 16px;
   border-radius: 12px;
   background: #f8f9fa;
   border: 2px solid transparent;
   transition: all 0.3s ease;
-  min-width: 200px;
   justify-content: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .status-item.current {
@@ -664,8 +659,8 @@ onMounted(async () => {
   font-family: 'Monaco', 'Menlo', monospace;
   font-weight: 700;
   color: #2c3e50;
-  font-size: 18px;
-  min-width: 60px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .status-arrow {
@@ -677,7 +672,7 @@ onMounted(async () => {
   font-family: 'Monaco', 'Menlo', monospace;
   font-weight: 600;
   color: #333;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .status-indicator-wrapper {
@@ -694,19 +689,13 @@ onMounted(async () => {
   font-size: 14px;
 }
 
-/* 操作区 */
-.operation-section {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
+/* 操作区 - 现在在配置区内部 */
 .action-area {
   display: flex;
   justify-content: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .save-button {
@@ -743,17 +732,17 @@ onMounted(async () => {
   .main-layout {
     flex-direction: column;
   }
-  
+
   .logs-sidebar {
     width: 100%;
     position: relative;
     max-height: 300px;
   }
-  
+
   .port-cards {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .status-grid {
     flex-direction: column;
     align-items: center;
@@ -765,38 +754,38 @@ onMounted(async () => {
     padding: 12px;
     height: 100vh;
   }
-  
+
   .title {
     font-size: 24px;
   }
-  
+
   .console-layout {
     gap: 12px;
   }
-  
+
   .config-section,
   .status-section,
   .operation-section {
     padding: 16px;
   }
-  
+
   .port-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .status-grid {
     flex-direction: column;
   }
-  
+
   .save-button {
     width: 100%;
     padding: 12px 24px;
   }
-  
+
   .ip-text {
     font-size: 14px;
   }
-  
+
   .status-port {
     font-size: 16px;
   }

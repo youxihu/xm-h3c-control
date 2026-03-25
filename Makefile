@@ -73,6 +73,11 @@ build-frontend:
 	cd $(FRONTEND_DIR) && zip -r switch-port-frontend.zip dist/
 	@ls -la $(FRONTEND_DIST)
 
+.PHONY: build-docker
+build-docker:
+	@echo "🔨 构建后端Docker镜像..."
+	docker build -f docker/Dockerfile -t registry.cn-hangzhou.xmkj/tools/xm-switch-port:v0.0.1 .
+
 # ==================== 依赖管理 ====================
 
 # 清理后端构建产物

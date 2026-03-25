@@ -1,13 +1,13 @@
 FROM alpine:latest
 
-# Layer 1: 环境初始化 + 时区配置（合并所有系统操作）
+# 设置时区为中国上海
 RUN mkdir -p /app-acc/config \
-    && echo -e "http://mirrors.aliyun.com/alpine/v3.19/main\nhttp://mirrors.aliyun.com/alpine/v3.19/community" > /etc/apk/repositories \
-    && apk add --no-cache tzdata \
+    && echo -e  "http://mirrors.aliyun.com/alpine/v3.4/main\nhttp://mirrors.aliyun.com/alpine/v3.4/community" >  /etc/apk/repositories \
+    && apk update && apk add tzdata \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && echo "Asia/Shanghai" > /etc/timezone \
-    && apk del --purge tzdata \
-    && rm -rf /var/cache/apk/*
+    && echo "Shanghai/Asia" > /etc/timezone \
+    && apk del tzdata
+
 
 # Layer 2: 设置工作目录
 ENV WORKDIR=/app-acc

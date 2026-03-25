@@ -59,9 +59,19 @@ func main() {
 		}
 	}
 
+	// 转换端口描述配置格式
+	portDescriptions := make(map[int]service.PortDescription)
+	for port, desc := range revertCfg.PortDescriptions {
+		portDescriptions[port] = service.PortDescription{
+			Name:        desc.Name,
+			Description: desc.Description,
+		}
+	}
+
 	portAppService := service.NewPortApplicationService(
 		natDomainService,
 		revertCfg.PortMappings,
+		portDescriptions,
 		hosts,
 		cfg.H3CMSR2600.ExternalIP,
 		logRepo,

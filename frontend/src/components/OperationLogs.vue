@@ -230,16 +230,14 @@ defineExpose({
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.9);
+  background: transparent;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .collapsed-indicator:hover {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   transform: translateX(-2px);
 }
 
@@ -264,6 +262,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border-radius: 16px;
 }
 
 .card-header {
@@ -272,8 +271,9 @@ defineExpose({
   align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(248, 250, 252, 0.8);
+  background: transparent;
   flex-shrink: 0;
+  border-radius: 16px 16px 0 0;
 }
 
 .card-title {
@@ -400,8 +400,9 @@ defineExpose({
   text-align: center;
   padding: 8px 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
-  background: rgba(248, 250, 252, 0.8);
+  background: transparent;
   flex-shrink: 0;
+  border-radius: 0 0 16px 16px;
 }
 
 .more-text {

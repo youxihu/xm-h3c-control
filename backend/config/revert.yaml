@@ -3,6 +3,22 @@ port_mappings:
   61002: 65530
   61100: 65531
   48080: 65532
+  62201: 65533
+
+# 端口描述配置
+port_descriptions:
+  61002:
+    name: "drone_control_link"
+    description: "侦测无人机控制链路端口"
+  61100:
+    name: "drone_data_link"
+    description: "侦测无人机数据链路端口"
+  62201:
+    name: "tianbo_luoguang"
+    description: "天波珞光设备"
+  48080:
+    name: "dongwu_backend"
+    description: "东吴后端端口"
 
 hosts:
   192.168.1.211:
@@ -10,12 +26,14 @@ hosts:
     services:
       drone_control_link: 61002
       drone_data_link: 61100
+      tianbo_luoguang: 62201
       dongwu_backend: 48080
   192.168.1.221:
     env: zc-test
     services:
       drone_control_link: 61002
       drone_data_link: 61100
+      tianbo_luoguang: 62201
   192.168.1.218:
     env: dw-test
     services:
