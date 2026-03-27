@@ -95,7 +95,7 @@
           </div>
         </div>
         
-        <div v-if="logs.length > 5" class="more-logs">
+        <div v-if="logs.length > 0" class="more-logs">
           <span class="more-text">共 {{ logs.length }} 条记录</span>
         </div>
       </div>
@@ -138,9 +138,9 @@ const loading = ref(false)
 const error = ref('')
 const isCollapsed = ref(true) // 默认折叠状态
 
-// 只显示最近5条日志
+// 显示所有日志，不限制数量
 const displayLogs = computed(() => {
-  return logs.value.slice(0, 5)
+  return logs.value
 })
 
 // 切换折叠/展开状态

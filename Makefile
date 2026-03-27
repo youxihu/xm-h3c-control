@@ -76,7 +76,7 @@ build-frontend:
 .PHONY: build-docker
 build-docker:
 	@echo "🔨 构建后端Docker镜像..."
-	docker build -f docker/Dockerfile -t registry.cn-hangzhou.xmkj/tools/xm-switch-port:v0.0.1 .
+	docker build -f docker/Dockerfile -t registry.cn-hangzhou.xmkj/tools/xm-switch-port:v0.0.3 .
 
 # ==================== 依赖管理 ====================
 

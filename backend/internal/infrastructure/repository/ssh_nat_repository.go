@@ -392,7 +392,21 @@ func (r *SSHNATRepository) BatchSwitchMappings(operations []repository.SwitchOpe
 	commands = append(commands, "interface GigabitEthernet0/0")
 
 	for i, op := range operations {
-		log.Printf("操作 %d: 删除 %s -> 创建 %s", i+1, op.OldMapping.String(), op.NewMapping.String())
+		var oldMappingStr, newMappingStr string
+		
+		if op.OldMapping != nil {
+			oldMappingStr = op.OldMapping.String()
+		} else {
+			oldMappingStr = "无旧映射"
+		}
+		
+		if op.NewMapping != nil {
+			newMappingStr = op.NewMapping.String()
+		} else {
+			newMappingStr = "无新映射"
+		}
+		
+		log.Printf("操作 %d: 删除 %s -> 创建 %s", i+1, oldMappingStr, newMappingStr)
 
 		// 如果有旧映射，先删除
 		if op.OldMapping != nil {

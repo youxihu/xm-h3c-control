@@ -38,3 +38,7 @@ hosts:
     env: dw-test
     services:
       dongwu_backend: 48080
+  192.168.1.254:
+    env: zg-test
+    services:
+      tianbo_luoguang: 62201

@@ -17,6 +17,7 @@ bin/
 # 测试文件
 *.test
 *.out
+example.yaml
 
 # 日志文件
 logs/

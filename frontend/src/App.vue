@@ -497,6 +497,9 @@ onMounted(async () => {
   border-radius: 12px;
   transition: all 0.3s ease;
   cursor: pointer;
+  height: 280px;
+  display: flex;
+  flex-direction: column;
 }
 
 .port-card:hover {
@@ -542,6 +545,9 @@ onMounted(async () => {
 
 .port-options {
   padding: 12px 0;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .radio-group {
@@ -789,5 +795,23 @@ onMounted(async () => {
   .status-port {
     font-size: 16px;
   }
+}
+
+/* 端口选项滚动条样式 */
+.port-options::-webkit-scrollbar {
+  width: 3px;
+}
+
+.port-options::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.port-options::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 2px;
+}
+
+.port-options::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
 }
 </style>

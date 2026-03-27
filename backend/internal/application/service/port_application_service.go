@@ -263,7 +263,7 @@ func (s *PortApplicationService) UpdateCacheAfterSwitch(internalPort int, newInt
 // addIPOptions 添加IP选项到端口配置
 func (s *PortApplicationService) addIPOptions(portConfig *entity.PortConfig, internalPort int, serviceName string) {
 	// 按环境顺序添加选项
-	envOrder := []string{"dev", "zc-test", "dw-test"}
+	envOrder := []string{"dev", "zc-test", "zg-test", "dw-test"}
 
 	for _, env := range envOrder {
 		for hostIP, hostConfig := range s.hosts {
@@ -276,6 +276,8 @@ func (s *PortApplicationService) addIPOptions(portConfig *entity.PortConfig, int
 							envDesc = "开发环境"
 						case "zc-test":
 							envDesc = "测试环境"
+						case "zg-test":
+							envDesc = "zg测试环境"
 						case "dw-test":
 							envDesc = "东吴环境"
 						default:

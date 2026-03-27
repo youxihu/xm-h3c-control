@@ -118,6 +118,22 @@
             color: #fa8c16;
         }
         
+        /* 新增：综管测试样式 - 带边框 */
+        .env-zg {
+            background: #fff0f6;
+            color: #eb2f96;
+            border: 2px solid #eb2f96;
+            font-weight: 600;
+        }
+        
+        /* 新增：飞行综管平台测试样式 - 紫色边框 */
+        .env-zg-platform {
+            background: #f9f0ff;
+            color: #722ed1;
+            border: 2px solid #722ed1;
+            font-weight: 600;
+        }
+        
         .step-list {
             counter-reset: step-counter;
         }
@@ -220,12 +236,12 @@
             <!-- 系统概述 -->
             <div class="section">
                 <h2>📋 系统概述</h2>
-                <p>本工具专为H3C路由器端口映射管理而设计，支持在三个不同环境之间快速切换端口映射配置。通过Web界面可以直观地管理端口映射，支持批量操作和实时状态监控。</p>
+                <p>本工具专为H3C路由器端口映射管理而设计，支持在多个不同环境之间快速切换端口映射配置。通过Web界面可以直观地管理端口映射，支持批量操作和实时状态监控。</p>
                 
                 <div class="info">
                     <h4>🎯 核心功能</h4>
                     <ul>
-                        <li>支持三个预定义端口的映射切换</li>
+                        <li>支持四个预定义端口的映射切换</li>
                         <li>实时显示当前端口映射状态</li>
                         <li>批量端口切换操作</li>
                         <li>完整的操作日志记录</li>
@@ -237,7 +253,7 @@
             <!-- 支持的端口和环境 -->
             <div class="section">
                 <h2>🔌 支持的端口和环境</h2>
-                <p>系统支持以下三个端口的映射切换，每个端口对应不同的服务和环境：</p>
+                <p>系统支持以下四个端口的映射切换，每个端口对应不同的服务和环境：</p>
                 
                 <table class="port-table">
                     <thead>
@@ -271,6 +287,17 @@
                             <td>无人机数据传输</td>
                         </tr>
                         <tr>
+                            <td><strong>天波珞光设备端口</strong></td>
+                            <td>62201</td>
+                            <td>62201</td>
+                            <td>
+                                <span class="env-tag env-dev">开发环境</span>
+                                <span class="env-tag env-zc">侦测测试</span>
+                                <span class="env-tag env-zg">低空综合飞行服务管理平台</span>
+                            </td>
+                            <td>天波珞光设备</td>
+                        </tr>
+                        <tr>
                             <td><strong>东吴后端端口</strong></td>
                             <td>48099</td>
                             <td>48080</td>
@@ -285,9 +312,10 @@
 
                 <h3>🏷️ 环境说明</h3>
                 <ul>
-                    <li><span class="env-tag env-dev">开发环境 (dev)</span> - IP: 192.168.1.109 - 用于开发和调试</li>
+                    <li><span class="env-tag env-dev">开发环境 (dev)</span> - IP: 192.168.1.107 - 用于开发和调试</li>
                     <li><span class="env-tag env-zc">侦测测试 (zc)</span> - IP: 192.168.1.94 - 用于侦测功能测试</li>
                     <li><span class="env-tag env-dw">东吴测试 (dw)</span> - IP: 192.168.1.116 - 用于东吴系统测试</li>
+                    <li><span class="env-tag env-zg-platform">飞行综管测试 (zg)</span> - IP: 192.168.1.113 - 用于低空综合飞行服务管理平台测试</li>
                 </ul>
             </div>
 
@@ -350,7 +378,7 @@
                 <div class="warning">
                     <h4>🚨 重要提醒</h4>
                     <ul>
-                        <li><strong>仅支持预定义端口</strong>：系统只能切换上述三个预定义端口，不支持其他端口操作</li>
+                        <li><strong>仅支持预定义端口</strong>：系统只能切换上述四个预定义端口，不支持其他端口操作</li>
                         <li><strong>环境限制</strong>：每个端口只能切换到其支持的环境，不能跨环境操作</li>
                         <li><strong>网络影响</strong>：端口切换会短暂中断对应服务的网络连接</li>
                         <li><strong>权限要求</strong>：操作需要路由器管理员权限</li>

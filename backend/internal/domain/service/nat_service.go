@@ -252,7 +252,12 @@ func (s *NATService) BatchSwitchPortMappings(configs []SwitchConfig, portMapping
 
 		// 4. 构建切换操作
 		var oldMapping *entity.NATMapping
+		var description string
+		timestamp := time.Now().Format("2006-01-02-15:04") // 年-月-日-时:分格式
+		
 		if currentIP != "" {
+			// 有旧映射，是切换操作
+			description = fmt.Sprintf("%s %s switch to %s", timestamp, currentIP, config.NewInternalIP)
 			oldMapping, err = entity.NewNATMapping(
 				"tcp",
 				externalIP,
@@ -264,6 +269,9 @@ func (s *NATService) BatchSwitchPortMappings(configs []SwitchConfig, portMapping
 			if err != nil {
 				return fmt.Errorf("创建旧映射实体失败: %v", err)
 			}
+		} else {
+			// 没有旧映射，是新增操作
+			description = fmt.Sprintf("%s new mapping to %s", timestamp, config.NewInternalIP)
 		}
 
 		newMapping, err := entity.NewNATMapping(
@@ -272,7 +280,7 @@ func (s *NATService) BatchSwitchPortMappings(configs []SwitchConfig, portMapping
 			externalPort,
 			config.NewInternalIP,
 			config.InternalPort,
-			fmt.Sprintf("batch-switch-%d", time.Now().Unix()),
+			description,
 		)
 		if err != nil {
 			return fmt.Errorf("创建新映射实体失败: %v", err)
