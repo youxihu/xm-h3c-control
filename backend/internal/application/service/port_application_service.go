@@ -262,31 +262,27 @@ func (s *PortApplicationService) UpdateCacheAfterSwitch(internalPort int, newInt
 
 // addIPOptions 添加IP选项到端口配置
 func (s *PortApplicationService) addIPOptions(portConfig *entity.PortConfig, internalPort int, serviceName string) {
-	// 按环境顺序添加选项
-	envOrder := []string{"dev", "zc-test", "zg-test", "dw-test"}
-
-	for _, env := range envOrder {
-		for hostIP, hostConfig := range s.hosts {
-			if hostConfig.Env == env {
-				for name, port := range hostConfig.Services {
-					if port == internalPort && name == serviceName {
-						var envDesc string
-						switch env {
-						case "dev":
-							envDesc = "开发环境"
-						case "zc-test":
-							envDesc = "测试环境"
-						case "zg-test":
-							envDesc = "zg测试环境"
-						case "dw-test":
-							envDesc = "东吴环境"
-						default:
-							envDesc = env
-						}
-
-						portConfig.AddOption(hostIP, env, envDesc)
-					}
+	// 遍历所有主机配置，而不仅仅是预定义的环境
+	for hostIP, hostConfig := range s.hosts {
+		for name, port := range hostConfig.Services {
+			if port == internalPort && name == serviceName {
+				var envDesc string
+				switch hostConfig.Env {
+				case "dev":
+					envDesc = "开发环境"
+				case "zc-test":
+					envDesc = "测试环境"
+				case "zg-test":
+					envDesc = "zg测试环境"
+				case "dw-test":
+					envDesc = "东吴环境"
+				case "zc-hangshi":
+					envDesc = "杭实环境"
+				default:
+					envDesc = hostConfig.Env
 				}
+
+				portConfig.AddOption(hostIP, hostConfig.Env, envDesc)
 			}
 		}
 	}

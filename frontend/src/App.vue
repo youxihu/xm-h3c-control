@@ -223,7 +223,25 @@ watch(portMappings, () => {
 const fetchPortConfig = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/port-config`)
-    portConfigs.value = response.data.ports
+    
+    // 对每个端口的选项按IP地址排序
+    const sortedPorts = response.data.ports.map(port => ({
+      ...port,
+      options: [...port.options].sort((a, b) => {
+        // 按IP地址排序，例如 192.168.1.93 排在 192.168.1.94 前面
+        const ipA = a.ip.split('.').map(Number);
+        const ipB = b.ip.split('.').map(Number);
+        
+        for (let i = 0; i < 4; i++) {
+          if (ipA[i] !== ipB[i]) {
+            return ipA[i] - ipB[i];
+          }
+        }
+        return 0;
+      })
+    }));
+    
+    portConfigs.value = sortedPorts;
 
     // 初始化映射状态 - 使用外网端口作为键名
     const newPortMappings = {}
@@ -238,7 +256,7 @@ const fetchPortConfig = async () => {
     portMappings.value = newPortMappings
     originalMappings.value = newOriginalMappings
 
-    console.log('获取到的端口配置:', response.data)
+    console.log('获取到的端口配置:', sortedPorts)
     console.log('初始化的portMappings键:', Object.keys(portMappings.value))
   } catch (error) {
     console.error('获取端口配置失败:', error)

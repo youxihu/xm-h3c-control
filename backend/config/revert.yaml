@@ -1,9 +1,9 @@
 # 端口映射配置 - 内网端口到外网端口的映射
 port_mappings:
-  61002: 65530
-  61100: 65531
-  48080: 65532
-  62201: 65533
+  61002: 61002
+  61100: 61100
+  48080: 48099
+  62201: 62201
 
 # 端口描述配置
 port_descriptions:
@@ -21,24 +21,30 @@ port_descriptions:
     description: "东吴后端端口"
 
 hosts:
-  192.168.1.211:
+  192.168.1.107:
     env: dev
     services:
       drone_control_link: 61002
       drone_data_link: 61100
       tianbo_luoguang: 62201
       dongwu_backend: 48080
-  192.168.1.221:
+  192.168.1.94:
     env: zc-test
     services:
       drone_control_link: 61002
       drone_data_link: 61100
       tianbo_luoguang: 62201
-  192.168.1.218:
+  192.168.1.116:
     env: dw-test
     services:
       dongwu_backend: 48080
-  192.168.1.254:
+  192.168.1.113:
     env: zg-test
     services:
       tianbo_luoguang: 62201
+  192.168.1.93:
+    env: zc-hangshi
+    services:
+      drone_control_link: 61002
+      drone_data_link: 61100
+  
