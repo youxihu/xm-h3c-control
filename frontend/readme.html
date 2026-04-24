@@ -112,15 +112,24 @@
             background: #e6f4ff;
             color: #1890ff;
         }
-        
+
+        /* 原有的东吴测试样式 */
         .env-dw {
             background: #fff2e8;
             color: #fa8c16;
         }
+
+        /* 新增：东吴开发样式 */
+        /* 这里我使用与 dw 相似但略有区别的橙色，或者你可以完全一样 */
+        .env-dw-dev {
+            background: #fff7e6; /* 比 dw 更浅一点的橙色背景 */
+            color: #d46b08;      /* 稍深一点的橙色文字，增加对比度 */
+            border: 1px dashed #d46b08; /* 可选：加虚线边框以区分“开发”状态，如果不想要边框可删除此行 */
+        }
         
         /* 新增：综管测试样式 - 带边框 */
         .env-zg {
-            background: #fff0f6;
+            background: #f9f0ff;
             color: #eb2f96;
             border: 2px solid #eb2f96;
             font-weight: 600;
@@ -129,11 +138,24 @@
         /* 新增：飞行综管平台测试样式 - 紫色边框 */
         .env-zg-platform {
             background: #f9f0ff;
+            color: #eb2f96;
+            border: 2px solid #eb2f96;
+            font-weight: 600;
+        }
+        .env-hangshi {
+            background: #f9f0ff;
             color: #722ed1;
             border: 2px solid #722ed1;
             font-weight: 600;
         }
-        
+
+        /* 新增：飞行综管平台测试样式 - 紫色边框 */
+        .env-hangshi-platform {
+            background: #f9f0ff;
+            color: #722ed1;
+            border: 2px solid #722ed1;
+            font-weight: 600;
+        }
         .step-list {
             counter-reset: step-counter;
         }
@@ -273,7 +295,7 @@
                             <td>
                                 <span class="env-tag env-dev">开发环境</span>
                                 <span class="env-tag env-zc">侦测测试</span>
-                                <span class="env-tag env-zc">杭实环境</span>
+                                <span class="env-tag env-hangshi">杭实环境</span>
                             </td>
                             <td>无人机控制信号传输</td>
                         </tr>
@@ -284,7 +306,7 @@
                             <td>
                                 <span class="env-tag env-dev">开发环境</span>
                                 <span class="env-tag env-zc">侦测测试</span>
-                                <span class="env-tag env-zc">杭实环境</span>
+                                <span class="env-tag env-hangshi">杭实环境</span>
                             </td>
                             <td>无人机数据传输</td>
                         </tr>
@@ -295,7 +317,7 @@
                             <td>
                                 <span class="env-tag env-dev">开发环境</span>
                                 <span class="env-tag env-zc">侦测测试</span>
-                                <span class="env-tag env-zg">低空综合飞行服务管理平台</span>
+                                <span class="env-tag env-zg">飞行综管测试</span>
                             </td>
                             <td>天波珞光设备</td>
                         </tr>
@@ -304,7 +326,7 @@
                             <td>48099</td>
                             <td>48080</td>
                             <td>
-                                <span class="env-tag env-dev">开发环境</span>
+                                <span class="env-tag env-dw-dev">东吴开发</span>
                                 <span class="env-tag env-dw">东吴测试</span>
                             </td>
                             <td>东吴系统后端服务</td>
@@ -315,10 +337,11 @@
                 <h3>🏷️ 环境说明</h3>
                 <ul>
                     <li><span class="env-tag env-dev">开发环境 (dev)</span> - IP: 192.168.1.107 - 用于开发和调试</li>
+                    <li><span class="env-tag env-dw-dev">东吴开发 (dev)</span> - IP: 192.168.1.109 - 用于东吴开发和调试</li>
                     <li><span class="env-tag env-zc">侦测测试 (zc)</span> - IP: 192.168.1.94 - 用于侦测功能测试</li>
                     <li><span class="env-tag env-dw">东吴测试 (dw)</span> - IP: 192.168.1.116 - 用于东吴系统测试</li>
                     <li><span class="env-tag env-zg-platform">飞行综管测试 (zg)</span> - IP: 192.168.1.113 - 用于低空综合飞行服务管理平台测试</li>
-                    <li><span class="env-tag env-zc">杭实环境 (zc-hangshi)</span> - IP: 192.168.1.93 - 用于杭实相关测试</li>
+                    <li><span class="env-tag env-hangshi-platform">杭实环境 (zc-hangshi)</span> - IP: 192.168.1.93 - 用于杭实相关测试</li>
                 </ul>
             </div>
 
