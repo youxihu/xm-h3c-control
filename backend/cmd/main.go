@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"time"
@@ -88,17 +89,22 @@ func main() {
 	}()
 
 	// 7. 启动定时更新任务
-	go startCacheUpdateScheduler(portAppService, &cfg.Cache)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go startCacheUpdateScheduler(ctx, portAppService, &cfg.Cache)
 
 	// 8. 设置路由并启动服务器
 	r := router.SetupRoutes(portHandler)
 
-	// 获取端口配置
-	port := os.Getenv("PORT")
+	// 环境变量PORT（最高） > 配置文件server.port > 默认8080
+	port := cfg.Server.Port
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		port = envPort
+	}
 	if port == "" {
 		port = "8080"
 	}
-	
+
 	log.Printf("Server starting on :%s", port)
 	if err := r.Run(":" + port); err != nil {
 		log.Fatalf("服务器启动失败: %v", err)
@@ -106,9 +112,9 @@ func main() {
 }
 
 // startCacheUpdateScheduler 启动缓存更新调度器
-func startCacheUpdateScheduler(portService *service.PortApplicationService, cacheConfig *config.CacheConfig) {
+func startCacheUpdateScheduler(ctx context.Context, portService *service.PortApplicationService, cacheConfig *config.CacheConfig) {
 	var interval time.Duration
-	
+
 	if cacheConfig.UseTestInterval {
 		interval = time.Duration(cacheConfig.TestIntervalMinutes) * time.Minute
 		log.Printf("使用测试间隔: %d分钟", cacheConfig.TestIntervalMinutes)
@@ -122,6 +128,9 @@ func startCacheUpdateScheduler(portService *service.PortApplicationService, cach
 
 	for {
 		select {
+		case <-ctx.Done():
+			log.Println("缓存更新调度器收到退出信号，已停止")
+			return
 		case <-ticker.C:
 			if err := portService.UpdateCache(); err != nil {
 				log.Printf("定时缓存更新失败: %v", err)

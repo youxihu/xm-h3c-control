@@ -10,9 +10,15 @@ import (
 
 // Config 应用配置
 type Config struct {
+	Server     ServerConfig `yaml:"server"`
 	H3CMSR2600 RouterConfig `yaml:"h3c-msr2600"`
 	Redis      RedisConfig  `yaml:"redis"`
 	Cache      CacheConfig  `yaml:"cache"`
+}
+
+// ServerConfig 服务器配置
+type ServerConfig struct {
+	Port string `yaml:"port"`
 }
 
 // RouterConfig 路由器配置
@@ -45,9 +51,9 @@ type CacheConfig struct {
 
 // RevertConfig 端口映射配置
 type RevertConfig struct {
-	PortMappings     map[int][]int                       `yaml:"port_mappings"`
-	PortDescriptions map[int]PortDescription             `yaml:"port_descriptions"`
-	Hosts            map[string]HostConfig               `yaml:"hosts"`
+	PortMappings     map[int][]int           `yaml:"port_mappings"`
+	PortDescriptions map[int]PortDescription `yaml:"port_descriptions"`
+	Hosts            map[string]HostConfig   `yaml:"hosts"`
 }
 
 // PortDescription 端口描述配置
@@ -87,7 +93,7 @@ func LoadConfig() (*Config, *RevertConfig, error) {
 		return nil, nil, fmt.Errorf("解析revert配置文件失败: %v", err)
 	}
 
-	log.Printf("加载配置成功: 路由器地址 %s, 用户 %s, 外网IP %s", 
+	log.Printf("加载配置成功: 路由器地址 %s, 用户 %s, 外网IP %s",
 		config.H3CMSR2600.Host, config.H3CMSR2600.User, config.H3CMSR2600.ExternalIP)
 	log.Printf("端口映射配置: %+v", revertConfig.PortMappings)
 	log.Printf("Redis配置: %s:%d", config.Redis.Host, config.Redis.Port)
