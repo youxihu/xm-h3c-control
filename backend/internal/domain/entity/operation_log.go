@@ -54,21 +54,3 @@ func (o *OperationLog) Message() string      { return o.message }
 func (o *OperationLog) SourcePortIP() string { return o.sourcePortIP }
 func (o *OperationLog) TargetPortIP() string { return o.targetPortIP }
 func (o *OperationLog) Timestamp() time.Time { return o.timestamp }
-
-// TimeAgo 获取相对时间描述
-func (o *OperationLog) TimeAgo() string {
-	duration := time.Since(o.timestamp)
-	
-	if duration < time.Minute {
-		return "刚刚"
-	} else if duration < time.Hour {
-		minutes := int(duration.Minutes())
-		return fmt.Sprintf("%d分钟前", minutes)
-	} else if duration < 24*time.Hour {
-		hours := int(duration.Hours())
-		return fmt.Sprintf("%d小时前", hours)
-	} else {
-		days := int(duration.Hours() / 24)
-		return fmt.Sprintf("%d天前", days)
-	}
-}

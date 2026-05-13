@@ -41,38 +41,6 @@ func (r *SSHNATRepository) GetAllMappings() ([]*entity.NATMapping, error) {
 	return r.getCurrentNATMappings(client)
 }
 
-// FindByInternalTarget 根据内网目标查找映射
-func (r *SSHNATRepository) FindByInternalTarget(internalIP string, internalPort int) (*entity.NATMapping, error) {
-	mappings, err := r.GetAllMappings()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, mapping := range mappings {
-		if mapping.IsSameTarget(internalIP, internalPort) {
-			return mapping, nil
-		}
-	}
-
-	return nil, fmt.Errorf("未找到内网目标 %s:%d 的映射", internalIP, internalPort)
-}
-
-// FindByExternalPort 根据外网端口查找映射
-func (r *SSHNATRepository) FindByExternalPort(externalPort int) (*entity.NATMapping, error) {
-	mappings, err := r.GetAllMappings()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, mapping := range mappings {
-		if mapping.ExternalPort() == externalPort {
-			return mapping, nil
-		}
-	}
-
-	return nil, fmt.Errorf("未找到外网端口 %d 的映射", externalPort)
-}
-
 // CreateMapping 创建新映射
 func (r *SSHNATRepository) CreateMapping(mapping *entity.NATMapping) error {
 	client, err := r.connect()
@@ -85,20 +53,6 @@ func (r *SSHNATRepository) CreateMapping(mapping *entity.NATMapping) error {
 	}()
 
 	return r.createNATMapping(client, mapping)
-}
-
-// UpdateMapping 更新映射（删除旧的，创建新的）
-func (r *SSHNATRepository) UpdateMapping(oldMapping, newMapping *entity.NATMapping) error {
-	client, err := r.connect()
-	if err != nil {
-		return fmt.Errorf("连接路由器失败: %v", err)
-	}
-	defer func() {
-		client.Close()
-		log.Printf("SSH连接已关闭")
-	}()
-
-	return r.switchNATMapping(client, oldMapping, newMapping)
 }
 
 // DeleteMapping 删除映射
@@ -211,53 +165,6 @@ quit`,
 	return nil
 }
 
-// switchNATMapping 切换NAT映射
-func (r *SSHNATRepository) switchNATMapping(client *ssh.Client, oldMapping, newMapping *entity.NATMapping) error {
-	log.Printf("=== 开始端口切换操作 ===")
-	log.Printf("删除旧映射: %s", oldMapping.String())
-	log.Printf("创建新映射: %s", newMapping.String())
-
-	switchCmd := fmt.Sprintf(`system-view
-interface GigabitEthernet0/0
-undo nat server protocol %s global %s %d
-nat server protocol %s global %s %d inside %s %d description %s
-quit
-quit`,
-		oldMapping.Protocol(), oldMapping.ExternalIP(), oldMapping.ExternalPort(),
-		newMapping.Protocol(), newMapping.ExternalIP(), newMapping.ExternalPort(),
-		newMapping.InternalIP(), newMapping.InternalPort(), newMapping.Description(),
-	)
-
-	log.Printf("执行切换命令序列:")
-	log.Printf("1. system-view")
-	log.Printf("2. interface GigabitEthernet0/0")
-	log.Printf("3. undo nat server protocol %s global %s %d (删除旧映射)",
-		oldMapping.Protocol(), oldMapping.ExternalIP(), oldMapping.ExternalPort())
-	log.Printf("4. nat server protocol %s global %s %d inside %s %d description %s (创建新映射)",
-		newMapping.Protocol(), newMapping.ExternalIP(), newMapping.ExternalPort(),
-		newMapping.InternalIP(), newMapping.InternalPort(), newMapping.Description())
-	log.Printf("5. quit")
-	log.Printf("6. quit")
-
-	session, err := client.NewSession()
-	if err != nil {
-		return fmt.Errorf("创建SSH会话失败: %v", err)
-	}
-	defer session.Close()
-
-	output, err := session.CombinedOutput(switchCmd)
-	if err != nil {
-		log.Printf("❌ 切换命令执行失败: %v", err)
-		log.Printf("命令输出: %s", string(output))
-		return fmt.Errorf("切换命令执行失败: %v", err)
-	}
-
-	log.Printf("✅ 切换命令执行成功")
-	log.Printf("命令输出: %s", string(output))
-	log.Printf("=== 端口切换操作完成 ===")
-	return nil
-}
-
 // deleteNATMapping 删除NAT映射
 func (r *SSHNATRepository) deleteNATMapping(client *ssh.Client, mapping *entity.NATMapping) error {
 	deleteCmd := fmt.Sprintf(`system-view
@@ -361,14 +268,6 @@ func (r *SSHNATRepository) parseAddress(addr string, ip *string, port *int) erro
 	return nil
 }
 
-// min 辅助函数
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 // BatchSwitchMappings 批量切换映射（在单个SSH会话中完成）
 func (r *SSHNATRepository) BatchSwitchMappings(operations []repository.SwitchOperation) error {
 	if len(operations) == 0 {
@@ -393,19 +292,19 @@ func (r *SSHNATRepository) BatchSwitchMappings(operations []repository.SwitchOpe
 
 	for i, op := range operations {
 		var oldMappingStr, newMappingStr string
-		
+
 		if op.OldMapping != nil {
 			oldMappingStr = op.OldMapping.String()
 		} else {
 			oldMappingStr = "无旧映射"
 		}
-		
+
 		if op.NewMapping != nil {
 			newMappingStr = op.NewMapping.String()
 		} else {
 			newMappingStr = "无新映射"
 		}
-		
+
 		log.Printf("操作 %d: 删除 %s -> 创建 %s", i+1, oldMappingStr, newMappingStr)
 
 		// 如果有旧映射，先删除

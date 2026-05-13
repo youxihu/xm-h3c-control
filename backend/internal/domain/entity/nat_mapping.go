@@ -2,7 +2,6 @@ package entity
 
 import (
 	"fmt"
-	"time"
 )
 
 // NATMapping NAT映射实体
@@ -44,29 +43,12 @@ func NewNATMapping(protocol, externalIP string, externalPort int, internalIP str
 }
 
 // Getters
-func (n *NATMapping) Protocol() string     { return n.protocol }
-func (n *NATMapping) ExternalIP() string   { return n.externalIP }
-func (n *NATMapping) ExternalPort() int    { return n.externalPort }
-func (n *NATMapping) InternalIP() string   { return n.internalIP }
-func (n *NATMapping) InternalPort() int    { return n.internalPort }
-func (n *NATMapping) Description() string  { return n.description }
-
-// UpdateInternalTarget 更新内网目标
-func (n *NATMapping) UpdateInternalTarget(newInternalIP string, newInternalPort int) error {
-	if newInternalIP == "" {
-		return fmt.Errorf("新内网IP不能为空")
-	}
-	if newInternalPort <= 0 || newInternalPort > 65535 {
-		return fmt.Errorf("新内网端口必须在1-65535范围内")
-	}
-
-	n.internalIP = newInternalIP
-	n.internalPort = newInternalPort
-	// 使用时间戳格式：年月日时分秒-switch
-	timestamp := time.Now().Format("20060102150405")
-	n.description = fmt.Sprintf("%s-switch", timestamp)
-	return nil
-}
+func (n *NATMapping) Protocol() string    { return n.protocol }
+func (n *NATMapping) ExternalIP() string  { return n.externalIP }
+func (n *NATMapping) ExternalPort() int   { return n.externalPort }
+func (n *NATMapping) InternalIP() string  { return n.internalIP }
+func (n *NATMapping) InternalPort() int   { return n.internalPort }
+func (n *NATMapping) Description() string { return n.description }
 
 // IsSameTarget 检查是否指向相同的内网目标
 func (n *NATMapping) IsSameTarget(internalIP string, internalPort int) bool {
@@ -75,8 +57,8 @@ func (n *NATMapping) IsSameTarget(internalIP string, internalPort int) bool {
 
 // String 字符串表示
 func (n *NATMapping) String() string {
-	return fmt.Sprintf("%s:%d -> %s:%d (%s)", 
-		n.externalIP, n.externalPort, 
-		n.internalIP, n.internalPort, 
+	return fmt.Sprintf("%s:%d -> %s:%d (%s)",
+		n.externalIP, n.externalPort,
+		n.internalIP, n.internalPort,
 		n.protocol)
 }

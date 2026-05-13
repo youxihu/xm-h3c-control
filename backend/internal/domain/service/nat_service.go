@@ -24,14 +24,17 @@ func NewNATService(natRepo repository.NATRepository, cacheRepo repository.CacheR
 }
 
 // SwitchPortMapping 切换端口映射
-func (s *NATService) SwitchPortMapping(currentInternalIP, newInternalIP string, internalPort int, portMappings map[int]int, externalIP string) error {
+func (s *NATService) SwitchPortMapping(currentInternalIP, newInternalIP string, internalPort int, portMappings map[int][]int, externalIP string) error {
 	log.Printf("开始切换端口映射: 内网端口%d -> 新IP%s", internalPort, newInternalIP)
 
-	// 1. 从配置获取外网端口
-	externalPort, exists := portMappings[internalPort]
-	if !exists {
+	// 1. 从配置获取外网端口列表
+	externalPorts, exists := portMappings[internalPort]
+	if !exists || len(externalPorts) == 0 {
 		return fmt.Errorf("配置中未找到内网端口 %d 对应的外网端口", internalPort)
 	}
+
+	// 使用第一个外网端口作为主要端口
+	externalPort := externalPorts[0]
 
 	// 2. 先从Redis缓存获取当前状态
 	portKey := fmt.Sprintf("port_%d", externalPort)
@@ -98,12 +101,15 @@ func (s *NATService) SwitchPortMapping(currentInternalIP, newInternalIP string, 
 }
 
 // UpdateCacheAfterSwitch 切换后更新缓存
-func (s *NATService) UpdateCacheAfterSwitch(internalPort int, newInternalIP string, portMappings map[int]int) error {
+func (s *NATService) UpdateCacheAfterSwitch(internalPort int, newInternalIP string, portMappings map[int][]int) error {
 	// 获取外网端口
-	externalPort, exists := portMappings[internalPort]
-	if !exists {
+	externalPorts, exists := portMappings[internalPort]
+	if !exists || len(externalPorts) == 0 {
 		return fmt.Errorf("配置中未找到内网端口 %d 对应的外网端口", internalPort)
 	}
+
+	// 使用第一个外网端口作为主要端口
+	externalPort := externalPorts[0]
 
 	// 获取当前缓存状态
 	currentStatus, err := s.cacheRepo.GetPortStatus()
@@ -129,43 +135,13 @@ func (s *NATService) UpdateCacheAfterSwitch(internalPort int, newInternalIP stri
 	return nil
 }
 
-// createNewMapping 创建新映射
-func (s *NATService) createNewMapping(internalIP string, internalPort int, portMappings map[int]int, externalIP string) error {
-	// 从配置获取外网端口
-	externalPort, exists := portMappings[internalPort]
-	if !exists {
-		return fmt.Errorf("配置中未找到内网端口 %d 对应的外网端口", internalPort)
-	}
-
-	// 创建新映射
-	newMapping, err := entity.NewNATMapping(
-		"tcp", // 默认TCP协议
-		externalIP,
-		externalPort,
-		internalIP,
-		internalPort,
-		fmt.Sprintf("new-mapping-%s-%d", internalIP, internalPort),
-	)
-	if err != nil {
-		return fmt.Errorf("创建映射实体失败: %v", err)
-	}
-
-	// 执行创建
-	if err := s.natRepo.CreateMapping(newMapping); err != nil {
-		return fmt.Errorf("创建映射失败: %v", err)
-	}
-
-	log.Printf("新映射创建成功: %s", newMapping.String())
-	return nil
-}
-
 // GetCachedPortStatus 从缓存获取端口状态（不查询路由器）
 func (s *NATService) GetCachedPortStatus() (map[string]string, error) {
 	return s.cacheRepo.GetPortStatus()
 }
 
 // GetCurrentPortStatus 获取当前端口状态
-func (s *NATService) GetCurrentPortStatus(portMappings map[int]int) (map[string]string, error) {
+func (s *NATService) GetCurrentPortStatus(portMappings map[int][]int) (map[string]string, error) {
 	// 获取所有映射
 	mappings, err := s.natRepo.GetAllMappings()
 	if err != nil {
@@ -174,23 +150,25 @@ func (s *NATService) GetCurrentPortStatus(portMappings map[int]int) (map[string]
 
 	// 构建状态映射
 	status := make(map[string]string)
-	
-	for internalPort, externalPort := range portMappings {
-		portKey := fmt.Sprintf("port_%d", externalPort)
-		status[portKey] = "" // 默认为空
-		
-		// 查找对应的映射
-		for _, mapping := range mappings {
-			if mapping.ExternalPort() == externalPort {
-				status[portKey] = mapping.InternalIP()
-				log.Printf("找到映射: 内网端口%d -> 外网端口%d -> 内网IP%s", 
-					internalPort, externalPort, mapping.InternalIP())
-				break
+
+	for internalPort, externalPorts := range portMappings {
+		for _, externalPort := range externalPorts {
+			portKey := fmt.Sprintf("port_%d", externalPort)
+			status[portKey] = "" // 默认为空
+
+			// 查找对应的映射
+			for _, mapping := range mappings {
+				if mapping.ExternalPort() == externalPort {
+					status[portKey] = mapping.InternalIP()
+					log.Printf("找到映射: 内网端口%d -> 外网端口%d -> 内网IP%s",
+						internalPort, externalPort, mapping.InternalIP())
+					break
+				}
 			}
-		}
-		
-		if status[portKey] == "" {
-			log.Printf("未找到映射: 内网端口%d -> 外网端口%d", internalPort, externalPort)
+
+			if status[portKey] == "" {
+				log.Printf("未找到映射: 内网端口%d -> 外网端口%d", internalPort, externalPort)
+			}
 		}
 	}
 
@@ -198,7 +176,7 @@ func (s *NATService) GetCurrentPortStatus(portMappings map[int]int) (map[string]
 }
 
 // UpdateCache 更新缓存
-func (s *NATService) UpdateCache(portMappings map[int]int) error {
+func (s *NATService) UpdateCache(portMappings map[int][]int) error {
 	status, err := s.GetCurrentPortStatus(portMappings)
 	if err != nil {
 		return fmt.Errorf("获取端口状态失败: %v", err)
@@ -212,7 +190,7 @@ func (s *NATService) UpdateCache(portMappings map[int]int) error {
 }
 
 // BatchSwitchPortMappings 批量切换端口映射（在单个SSH会话中完成）
-func (s *NATService) BatchSwitchPortMappings(configs []SwitchConfig, portMappings map[int]int, externalIP string) error {
+func (s *NATService) BatchSwitchPortMappings(configs []SwitchConfig, portMappings map[int][]int, externalIP string) error {
 	if len(configs) == 0 {
 		return nil
 	}
@@ -231,11 +209,8 @@ func (s *NATService) BatchSwitchPortMappings(configs []SwitchConfig, portMapping
 	var cacheUpdates = make(map[string]string)
 
 	for _, config := range configs {
-		// 1. 从配置获取外网端口
-		externalPort, exists := portMappings[config.InternalPort]
-		if !exists {
-			return fmt.Errorf("配置中未找到内网端口 %d 对应的外网端口", config.InternalPort)
-		}
+		// 1. 使用请求中指定的外网端口
+		externalPort := config.ExternalPort
 
 		// 2. 获取当前IP
 		portKey := fmt.Sprintf("port_%d", externalPort)
@@ -254,7 +229,7 @@ func (s *NATService) BatchSwitchPortMappings(configs []SwitchConfig, portMapping
 		var oldMapping *entity.NATMapping
 		var description string
 		timestamp := time.Now().Format("2006-01-02-15:04") // 年-月-日-时:分格式
-		
+
 		if currentIP != "" {
 			// 有旧映射，是切换操作
 			description = fmt.Sprintf("%s %s switch to %s", timestamp, currentIP, config.NewInternalIP)
@@ -321,7 +296,8 @@ func (s *NATService) BatchSwitchPortMappings(configs []SwitchConfig, portMapping
 
 // SwitchConfig 切换配置
 type SwitchConfig struct {
-	InternalPort    int
+	InternalPort      int
+	ExternalPort      int
 	CurrentInternalIP string
-	NewInternalIP   string
+	NewInternalIP     string
 }

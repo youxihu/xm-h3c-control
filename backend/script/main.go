@@ -195,6 +195,7 @@ type ApplyConfigRequest struct {
 type PortConfig struct {
 	InternalPort int    `json:"internal_port" binding:"required"`
 	InternalIP   string `json:"internal_ip" binding:"required"`
+	ExternalPort int    `json:"external_port" binding:"required"`
 }
 
 // PortConfigResponse 端口配置响应

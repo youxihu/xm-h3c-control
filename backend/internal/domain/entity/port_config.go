@@ -14,9 +14,10 @@ type PortConfig struct {
 
 // IPOption IP选项值对象
 type IPOption struct {
-	IP          string
-	Environment string
-	Description string
+	IP           string
+	InternalPort int
+	Environment  string
+	Description  string
 }
 
 // NewPortConfig 创建端口配置实体
@@ -45,15 +46,15 @@ func NewPortConfig(internalPort, externalPort int, externalIP, name, description
 }
 
 // Getters
-func (p *PortConfig) InternalPort() int    { return p.internalPort }
-func (p *PortConfig) ExternalPort() int    { return p.externalPort }
-func (p *PortConfig) ExternalIP() string   { return p.externalIP }
-func (p *PortConfig) Name() string         { return p.name }
-func (p *PortConfig) Description() string  { return p.description }
-func (p *PortConfig) Options() []IPOption  { return p.options }
+func (p *PortConfig) InternalPort() int   { return p.internalPort }
+func (p *PortConfig) ExternalPort() int   { return p.externalPort }
+func (p *PortConfig) ExternalIP() string  { return p.externalIP }
+func (p *PortConfig) Name() string        { return p.name }
+func (p *PortConfig) Description() string { return p.description }
+func (p *PortConfig) Options() []IPOption { return p.options }
 
 // AddOption 添加IP选项
-func (p *PortConfig) AddOption(ip, env, desc string) error {
+func (p *PortConfig) AddOption(ip string, internalPort int, env, desc string) error {
 	if ip == "" {
 		return fmt.Errorf("IP地址不能为空")
 	}
@@ -62,21 +63,12 @@ func (p *PortConfig) AddOption(ip, env, desc string) error {
 	}
 
 	option := IPOption{
-		IP:          ip,
-		Environment: env,
-		Description: desc,
+		IP:           ip,
+		InternalPort: internalPort,
+		Environment:  env,
+		Description:  desc,
 	}
 
 	p.options = append(p.options, option)
 	return nil
-}
-
-// HasOption 检查是否包含指定IP选项
-func (p *PortConfig) HasOption(ip string) bool {
-	for _, option := range p.options {
-		if option.IP == ip {
-			return true
-		}
-	}
-	return false
 }

@@ -45,7 +45,7 @@ type CacheConfig struct {
 
 // RevertConfig 端口映射配置
 type RevertConfig struct {
-	PortMappings     map[int]int                         `yaml:"port_mappings"`
+	PortMappings     map[int][]int                       `yaml:"port_mappings"`
 	PortDescriptions map[int]PortDescription             `yaml:"port_descriptions"`
 	Hosts            map[string]HostConfig               `yaml:"hosts"`
 }

@@ -16,6 +16,7 @@ type ApplyConfigRequest struct {
 type PortConfigDTO struct {
 	InternalPort int    `json:"internal_port" binding:"required"`
 	InternalIP   string `json:"internal_ip" binding:"required"`
+	ExternalPort int    `json:"external_port" binding:"required"`
 }
 
 // PortConfigResponse 端口配置响应DTO
@@ -25,17 +26,19 @@ type PortConfigResponse struct {
 
 // PortInfoDTO 端口信息DTO
 type PortInfoDTO struct {
-	InternalPort int           `json:"internal_port"`
-	ExternalPort int           `json:"external_port"`
-	ExternalIP   string        `json:"external_ip"`
-	Name         string        `json:"name"`
-	Description  string        `json:"description"`
-	Options      []IPOptionDTO `json:"options"`
+	InternalPort     int           `json:"internal_port"`
+	ExternalPort     int           `json:"external_port"`
+	AllExternalPorts []int         `json:"all_external_ports"`
+	ExternalIP       string        `json:"external_ip"`
+	Name             string        `json:"name"`
+	Description      string        `json:"description"`
+	Options          []IPOptionDTO `json:"options"`
 }
 
 // IPOptionDTO IP选项DTO
 type IPOptionDTO struct {
-	IP          string `json:"ip"`
-	Environment string `json:"environment"`
-	Description string `json:"description"`
+	IP           string `json:"ip"`
+	InternalPort int    `json:"internal_port"`
+	Environment  string `json:"environment"`
+	Description  string `json:"description"`
 }

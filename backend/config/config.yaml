@@ -15,7 +15,7 @@ redis:
   host: 192.168.1.218
   port: 6379
   password: "ningzaichun"
-  db: 1
+  db: 9
 
 # 缓存配置
 cache:

@@ -104,17 +104,6 @@ func (r *RedisCacheRepository) GetPortStatus() (map[string]string, error) {
 	return status, nil
 }
 
-// InvalidateCache 使缓存失效
-func (r *RedisCacheRepository) InvalidateCache() error {
-	err := r.client.Del(r.ctx, REDIS_KEY_PORT_STATUS, REDIS_KEY_LAST_UPDATE).Err()
-	if err != nil {
-		return fmt.Errorf("清除缓存失败: %v", err)
-	}
-
-	log.Printf("缓存已清除")
-	return nil
-}
-
 // Close 关闭Redis连接
 func (r *RedisCacheRepository) Close() error {
 	return r.client.Close()

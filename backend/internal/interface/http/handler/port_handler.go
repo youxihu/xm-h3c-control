@@ -170,20 +170,7 @@ func (h *PortHandler) getStatusAndUpdateCache(c *gin.Context) {
 	c.JSON(200, status)
 }
 
-// isStatusEqual 比较两个状态是否相等
-func (h *PortHandler) isStatusEqual(status1, status2 map[string]string) bool {
-	if len(status1) != len(status2) {
-		return false
-	}
 
-	for key, value1 := range status1 {
-		if value2, exists := status2[key]; !exists || value1 != value2 {
-			return false
-		}
-	}
-
-	return true
-}
 // GetOperationLogs 获取操作日志处理器
 func (h *PortHandler) GetOperationLogs(c *gin.Context) {
 	// 默认获取最近20条日志

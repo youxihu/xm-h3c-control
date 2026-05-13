@@ -15,8 +15,8 @@ import (
 
 const (
 	REDIS_KEY_OPERATION_LOGS = "operation_logs"
-	MAX_LOGS_COUNT          = 100 // 最多保留100条日志
-	LOG_EXPIRY_HOURS        = 24 * 7 // 日志保留7天
+	MAX_LOGS_COUNT           = 100    // 最多保留100条日志
+	LOG_EXPIRY_HOURS         = 24 * 7 // 日志保留7天
 )
 
 // RedisOperationLogRepository Redis操作日志仓储实现
@@ -127,7 +127,7 @@ func (r *RedisOperationLogRepository) GetRecentLogs(limit int) ([]*entity.Operat
 		} else {
 			operatorIP = "unknown"
 		}
-		
+
 		logEntry := entity.NewOperationLogWithTime(
 			logData["id"].(string),
 			operatorIP,
@@ -138,7 +138,7 @@ func (r *RedisOperationLogRepository) GetRecentLogs(limit int) ([]*entity.Operat
 			logData["target_port_ip"].(string),
 			timestamp,
 		)
-		
+
 		logs = append(logs, logEntry)
 	}
 
@@ -151,7 +151,7 @@ func (r *RedisOperationLogRepository) ClearOldLogs(keepCount int) error {
 	if err != nil {
 		return fmt.Errorf("清理旧日志失败: %v", err)
 	}
-	
+
 	log.Printf("已清理旧日志，保留最近 %d 条", keepCount)
 	return nil
 }

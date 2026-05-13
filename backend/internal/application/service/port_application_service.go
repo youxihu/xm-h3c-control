@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"log"
+	"sort"
 
 	"port-switch-backend/internal/application/dto"
 	"port-switch-backend/internal/domain/entity"
@@ -13,7 +14,7 @@ import (
 // PortApplicationService 端口应用服务
 type PortApplicationService struct {
 	natService       *service.NATService
-	portMappings     map[int]int
+	portMappings     map[int][]int
 	portDescriptions map[int]PortDescription
 	hosts            map[string]HostConfig
 	externalIP       string
@@ -35,7 +36,7 @@ type HostConfig struct {
 // NewPortApplicationService 创建端口应用服务
 func NewPortApplicationService(
 	natService *service.NATService,
-	portMappings map[int]int,
+	portMappings map[int][]int,
 	portDescriptions map[int]PortDescription,
 	hosts map[string]HostConfig,
 	externalIP string,
@@ -54,13 +55,17 @@ func NewPortApplicationService(
 // SwitchPort 切换单个端口
 func (s *PortApplicationService) SwitchPort(req dto.SwitchPortRequest) error {
 	// 1. 校验目标IP和端口配置是否合法
-	if err := s.validatePortConfig(req.InternalPort, req.NewInternalIP); err != nil {
+	externalPorts, exists := s.portMappings[req.InternalPort]
+	if !exists || len(externalPorts) == 0 {
+		return fmt.Errorf("端口 %d 不在允许的配置范围内", req.InternalPort)
+	}
+	if err := s.validatePortConfig(req.InternalPort, externalPorts[0], req.NewInternalIP); err != nil {
 		return fmt.Errorf("目标配置校验失败: %v", err)
 	}
 
 	// 2. 校验当前IP和端口配置是否合法（如果提供了当前IP）
 	if req.CurrentInternalIP != "" {
-		if err := s.validatePortConfig(req.InternalPort, req.CurrentInternalIP); err != nil {
+		if err := s.validatePortConfig(req.InternalPort, externalPorts[0], req.CurrentInternalIP); err != nil {
 			return fmt.Errorf("当前配置校验失败: %v", err)
 		}
 	}
@@ -74,12 +79,6 @@ func (s *PortApplicationService) SwitchPort(req dto.SwitchPortRequest) error {
 	)
 }
 
-// ApplyBatchConfig 批量应用配置
-func (s *PortApplicationService) ApplyBatchConfig(req dto.ApplyConfigRequest) ([]map[string]interface{}, error) {
-	return s.ApplyBatchConfigWithLog(req, "")
-}
-
-// ApplyBatchConfigWithLog 批量应用配置并记录日志
 // ApplyBatchConfigWithLog 批量应用配置并记录日志
 func (s *PortApplicationService) ApplyBatchConfigWithLog(req dto.ApplyConfigRequest, operatorIP string) ([]map[string]interface{}, error) {
 	log.Printf("开始批量应用配置，共 %d 个端口", len(req.Configs))
@@ -103,7 +102,7 @@ func (s *PortApplicationService) ApplyBatchConfigWithLog(req dto.ApplyConfigRequ
 		}
 
 		// 先校验目标配置是否合法
-		if err := s.validatePortConfig(config.InternalPort, config.InternalIP); err != nil {
+		if err := s.validatePortConfig(config.InternalPort, config.ExternalPort, config.InternalIP); err != nil {
 			log.Printf("端口 %d 配置校验失败: %v", config.InternalPort, err)
 			result["status"] = "error"
 			result["message"] = fmt.Sprintf("配置校验失败: %v", err)
@@ -121,11 +120,9 @@ func (s *PortApplicationService) ApplyBatchConfigWithLog(req dto.ApplyConfigRequ
 
 		// 从缓存获取当前映射状态
 		currentIP := ""
-		if externalPort, exists := s.portMappings[config.InternalPort]; exists {
-			portKey := fmt.Sprintf("port_%d", externalPort)
-			if val, exists := currentStatus[portKey]; exists {
-				currentIP = val
-			}
+		portKey := fmt.Sprintf("port_%d", config.ExternalPort)
+		if val, exists := currentStatus[portKey]; exists {
+			currentIP = val
 		}
 
 		// 如果目标IP与当前IP相同，跳过
@@ -139,6 +136,7 @@ func (s *PortApplicationService) ApplyBatchConfigWithLog(req dto.ApplyConfigRequ
 		// 添加到批量切换配置
 		switchConfigs = append(switchConfigs, service.SwitchConfig{
 			InternalPort:      config.InternalPort,
+			ExternalPort:      config.ExternalPort,
 			CurrentInternalIP: currentIP,
 			NewInternalIP:     config.InternalIP,
 		})
@@ -202,17 +200,25 @@ func (s *PortApplicationService) ApplyBatchConfigWithLog(req dto.ApplyConfigRequ
 
 // GetPortConfig 获取端口配置
 func (s *PortApplicationService) GetPortConfig() dto.PortConfigResponse {
-	// 定义固定的端口顺序
-	portOrder := []int{61002, 61100, 62201, 48080}
-
 	var ports []dto.PortInfoDTO
 
-	for _, internalPort := range portOrder {
-		externalPort, exists := s.portMappings[internalPort]
-		if !exists {
+	// 收集所有内部端口号并排序，以保持固定顺序
+	var internalPorts []int
+	for internalPort := range s.portDescriptions {
+		internalPorts = append(internalPorts, internalPort)
+	}
+	sort.Ints(internalPorts)
+
+	// 按照排序后的顺序遍历端口描述
+	for _, internalPort := range internalPorts {
+		externalPorts, exists := s.portMappings[internalPort]
+		if !exists || len(externalPorts) == 0 {
 			log.Printf("警告: 配置文件中未找到内网端口 %d 的映射", internalPort)
 			continue
 		}
+
+		// 使用第一个外网端口作为主要端口
+		externalPort := externalPorts[0]
 
 		// 从配置文件获取端口描述
 		portDesc, exists := s.portDescriptions[internalPort]
@@ -238,7 +244,7 @@ func (s *PortApplicationService) GetPortConfig() dto.PortConfigResponse {
 		s.addIPOptions(portConfig, internalPort, portDesc.Name)
 
 		// 转换为DTO
-		portDTO := s.convertToPortInfoDTO(portConfig)
+		portDTO := s.convertToPortInfoDTO(portConfig, externalPorts)
 		ports = append(ports, portDTO)
 	}
 
@@ -282,49 +288,65 @@ func (s *PortApplicationService) addIPOptions(portConfig *entity.PortConfig, int
 					envDesc = hostConfig.Env
 				}
 
-				portConfig.AddOption(hostIP, hostConfig.Env, envDesc)
+				portConfig.AddOption(hostIP, internalPort, hostConfig.Env, envDesc)
 			}
 		}
 	}
 }
 
 // convertToPortInfoDTO 转换为DTO
-func (s *PortApplicationService) convertToPortInfoDTO(portConfig *entity.PortConfig) dto.PortInfoDTO {
+func (s *PortApplicationService) convertToPortInfoDTO(portConfig *entity.PortConfig, allExternalPorts []int) dto.PortInfoDTO {
 	var options []dto.IPOptionDTO
 	for _, opt := range portConfig.Options() {
 		options = append(options, dto.IPOptionDTO{
-			IP:          opt.IP,
-			Environment: opt.Environment,
-			Description: opt.Description,
+			IP:           opt.IP,
+			InternalPort: opt.InternalPort,
+			Environment:  opt.Environment,
+			Description:  opt.Description,
 		})
 	}
 
 	return dto.PortInfoDTO{
-		InternalPort: portConfig.InternalPort(),
-		ExternalPort: portConfig.ExternalPort(),
-		ExternalIP:   portConfig.ExternalIP(),
-		Name:         portConfig.Name(),
-		Description:  portConfig.Description(),
-		Options:      options,
+		InternalPort:     portConfig.InternalPort(),
+		ExternalPort:     portConfig.ExternalPort(),
+		AllExternalPorts: allExternalPorts,
+		ExternalIP:       portConfig.ExternalIP(),
+		Name:             portConfig.Name(),
+		Description:      portConfig.Description(),
+		Options:          options,
 	}
 }
 
 // validatePortConfig 校验端口配置是否合法
-func (s *PortApplicationService) validatePortConfig(internalPort int, internalIP string) error {
-	// 1. 校验端口是否在配置的端口映射中
-	if _, exists := s.portMappings[internalPort]; !exists {
+func (s *PortApplicationService) validatePortConfig(internalPort int, externalPort int, internalIP string) error {
+	// 1. 校验内网端口是否在配置的端口映射中
+	externalPorts, exists := s.portMappings[internalPort]
+	if !exists {
 		return fmt.Errorf("端口 %d 不在允许的配置范围内，允许的端口: %v",
 			internalPort, s.getAllowedPorts())
 	}
 
-	// 2. 校验IP是否在配置的主机列表中
+	// 2. 校验外网端口是否属于该内网端口
+	portAllowed := false
+	for _, allowedPort := range externalPorts {
+		if allowedPort == externalPort {
+			portAllowed = true
+			break
+		}
+	}
+	if !portAllowed {
+		return fmt.Errorf("外网端口 %d 不属于内网端口 %d 的映射范围，允许的外网端口: %v",
+			externalPort, internalPort, externalPorts)
+	}
+
+	// 3. 校验IP是否在配置的主机列表中
 	hostConfig, exists := s.hosts[internalIP]
 	if !exists {
 		return fmt.Errorf("IP地址 %s 不在允许的配置范围内，允许的IP: %v",
 			internalIP, s.getAllowedIPs())
 	}
 
-	// 3. 校验该IP是否支持该端口的服务
+	// 4. 校验该IP是否支持该端口的服务
 	portSupported := false
 	for _, servicePort := range hostConfig.Services {
 		if servicePort == internalPort {

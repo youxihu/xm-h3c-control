@@ -1,49 +1,83 @@
 # 端口映射配置 - 内网端口到外网端口的映射
 port_mappings:
-  61002: 61002
-  61100: 61100
-  48080: 48099
-  62201: 62201
+  61002: 
+    - 36401
+    - 36405
+  61100:
+    - 36402
+    - 36406
+  62201:
+    - 36404
+    - 36407
+  48080: 
+    - 36403
+
 
 # 端口描述配置
 port_descriptions:
   61002:
     name: "drone_control_link"
     description: "侦测无人机控制链路端口"
+    mappings:
+      - port: 36401
+        name: "drone_control_link_1"
+        description: "侦测无人机控制链路端口-1"
+      - port: 36405
+        name: "drone_control_link_2"
+        description: "侦测无人机控制链路端口-2"
   61100:
     name: "drone_data_link"
     description: "侦测无人机数据链路端口"
+    mappings:
+      - port: 36402
+        name: "drone_data_link_1"
+        description: "侦测无人机数据链路端口-1"
+      - port: 36406
+        name: "drone_data_link_2"
+        description: "侦测无人机数据链路端口-2"
   62201:
     name: "tianbo_luoguang"
     description: "天波珞光设备"
+    mappings:
+      - port: 36404
+        name: "tianbo_luoguang_1"
+        description: "天波珞光设备-1"
+      - port: 36407
+        name: "tianbo_luoguang_2"
+        description: "天波珞光设备-2"
   48080:
     name: "dongwu_backend"
     description: "东吴后端端口"
+    mappings:
+      - port: 36403
+        name: "dongwu_backend"
+        description: "东吴后端端口"
+
 
 hosts:
-  192.168.1.107:
+  192.168.1.218:
     env: dev
     services:
       drone_control_link: 61002
       drone_data_link: 61100
       tianbo_luoguang: 62201
       dongwu_backend: 48080
-  192.168.1.94:
+  192.168.1.228:
     env: zc-test
     services:
       drone_control_link: 61002
       drone_data_link: 61100
       tianbo_luoguang: 62201
-  192.168.1.116:
+  192.168.1.229:
     env: dw-test
     services:
       dongwu_backend: 48080
-  192.168.1.113:
+  192.168.1.230:
     env: zg-test
     services:
       tianbo_luoguang: 62201
-  192.168.1.93:
-    env: zc-hangshi
+  192.168.1.231:
+    env: zc-hangshi-tmp
     services:
       drone_control_link: 61002
       drone_data_link: 61100

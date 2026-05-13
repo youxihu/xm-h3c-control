@@ -6,22 +6,13 @@ import "port-switch-backend/internal/domain/entity"
 type NATRepository interface {
 	// GetAllMappings 获取所有NAT映射
 	GetAllMappings() ([]*entity.NATMapping, error)
-	
-	// FindByInternalTarget 根据内网目标查找映射
-	FindByInternalTarget(internalIP string, internalPort int) (*entity.NATMapping, error)
-	
-	// FindByExternalPort 根据外网端口查找映射
-	FindByExternalPort(externalPort int) (*entity.NATMapping, error)
-	
+
 	// CreateMapping 创建新映射
 	CreateMapping(mapping *entity.NATMapping) error
-	
-	// UpdateMapping 更新映射（删除旧的，创建新的）
-	UpdateMapping(oldMapping, newMapping *entity.NATMapping) error
-	
+
 	// DeleteMapping 删除映射
 	DeleteMapping(mapping *entity.NATMapping) error
-	
+
 	// BatchSwitchMappings 批量切换映射（在单个SSH会话中完成）
 	BatchSwitchMappings(operations []SwitchOperation) error
 }
