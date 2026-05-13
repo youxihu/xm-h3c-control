@@ -1,5 +1,5 @@
 <template>
-  <div class="operation-logs-card" :class="{ 'collapsed': isCollapsed, 'expanded': !isCollapsed }">
+  <div class="operation-logs-card" :class="{ 'collapsed': isCollapsed, 'expanded': !isCollapsed, 'dark-theme': isDarkTheme }">
     <!-- 折叠状态的小箭头指引 -->
     <div v-if="isCollapsed" class="collapsed-indicator" @click="toggleCollapse">
       <el-icon class="arrow-icon">
@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { ElMessage } from 'element-plus'
 import { 
   RefreshRight, 
@@ -114,23 +114,10 @@ import {
   ArrowRight
 } from '@element-plus/icons-vue'
 import axios from 'axios'
-
-// API基础URL - 使用相对路径，通过nginx代理转发
-const getApiBaseUrl = () => {
-  // 在生产环境中，nginx会将/api路径代理到后端
-  // 开发环境可以通过环境变量或配置文件指定
-  if (import.meta.env.DEV) {
-    // 开发环境使用动态端口
-    const hostname = window.location.hostname
-    const port = '8080'
-    return `http://${hostname}:${port}`
-  } else {
-    // 生产环境使用相对路径，通过nginx代理
-    return ''
-  }
-}
+import { getApiBaseUrl } from '../api'
 
 const API_BASE_URL = getApiBaseUrl()
+const isDarkTheme = inject('isDarkTheme', ref(false))
 
 // 响应式数据
 const logs = ref([])
@@ -208,13 +195,11 @@ defineExpose({
   transition: all 0.3s ease;
 }
 
-/* 折叠状态 */
 .operation-logs-card.collapsed {
   width: 60px;
   height: 120px;
 }
 
-/* 展开状态 */
 .operation-logs-card.expanded {
   width: 350px;
   height: 60vh;
@@ -222,7 +207,6 @@ defineExpose({
   min-height: 200px;
 }
 
-/* 折叠状态的指引箭头 */
 .collapsed-indicator {
   width: 100%;
   height: 100%;
@@ -237,25 +221,24 @@ defineExpose({
 }
 
 .collapsed-indicator:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.04);
   transform: translateX(-2px);
 }
 
 .arrow-icon {
   font-size: 20px;
-  color: #667eea;
+  color: #3b82f6;
   margin-bottom: 8px;
 }
 
 .indicator-text {
   font-size: 12px;
-  color: #64748b;
+  color: #6b7280;
   font-weight: 500;
   writing-mode: vertical-rl;
   text-orientation: mixed;
 }
 
-/* 展开状态的内容 */
 .expanded-content {
   width: 100%;
   height: 100%;
@@ -270,7 +253,7 @@ defineExpose({
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid #e2e4e8;
   background: transparent;
   flex-shrink: 0;
   border-radius: 16px 16px 0 0;
@@ -280,7 +263,7 @@ defineExpose({
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #64748b;
+  color: #1f2937;
 }
 
 .header-actions {
@@ -291,13 +274,13 @@ defineExpose({
 .refresh-btn,
 .collapse-btn {
   padding: 4px;
-  color: #94a3b8;
+  color: #9ca3af;
   font-size: 14px;
 }
 
 .refresh-btn:hover,
 .collapse-btn:hover {
-  color: #409eff;
+  color: #3b82f6;
 }
 
 .card-content {
@@ -315,7 +298,7 @@ defineExpose({
   align-items: center;
   justify-content: center;
   height: 120px;
-  color: #94a3b8;
+  color: #6b7280;
 }
 
 .error-text,
@@ -330,7 +313,7 @@ defineExpose({
 
 .log-entry {
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #e2e4e8;
 }
 
 .log-entry:last-child {
@@ -346,7 +329,7 @@ defineExpose({
 
 .log-time {
   font-size: 12px;
-  color: #94a3b8;
+  color: #6b7280;
   font-family: 'Monaco', 'Menlo', monospace;
   font-weight: 500;
 }
@@ -356,11 +339,11 @@ defineExpose({
 }
 
 .status-icon.success {
-  color: #52c41a;
+  color: #22c55e;
 }
 
 .status-icon.failed {
-  color: #ff4d4f;
+  color: #ef4444;
 }
 
 .log-details {
@@ -377,29 +360,29 @@ defineExpose({
 }
 
 .field-label {
-  color: #94a3b8;
+  color: #6b7280;
   min-width: 60px;
   font-weight: 500;
 }
 
 .field-value {
-  color: #475569;
+  color: #1f2937;
   font-family: 'Monaco', 'Menlo', monospace;
   font-weight: 500;
 }
 
 .success-text {
-  color: #52c41a;
+  color: #22c55e;
 }
 
 .failed-text {
-  color: #ff4d4f;
+  color: #ef4444;
 }
 
 .more-logs {
   text-align: center;
   padding: 8px 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid #e2e4e8;
   background: transparent;
   flex-shrink: 0;
   border-radius: 0 0 16px 16px;
@@ -407,10 +390,9 @@ defineExpose({
 
 .more-text {
   font-size: 12px;
-  color: #94a3b8;
+  color: #6b7280;
 }
 
-/* 滚动条样式 */
 .card-content::-webkit-scrollbar {
   width: 3px;
 }
@@ -420,11 +402,95 @@ defineExpose({
 }
 
 .card-content::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: #d1d5db;
   border-radius: 2px;
 }
 
 .card-content::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ========== 暗色主题 ========== */
+.dark-theme .collapsed-indicator:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .arrow-icon {
+  color: #667eea;
+}
+
+.dark-theme .indicator-text {
+  color: #64748b;
+}
+
+.dark-theme .card-header {
+  border-bottom-color: #2a2d36;
+}
+
+.dark-theme .card-title {
+  color: #64748b;
+}
+
+.dark-theme .refresh-btn,
+.dark-theme .collapse-btn {
+  color: #94a3b8;
+}
+
+.dark-theme .refresh-btn:hover,
+.dark-theme .collapse-btn:hover {
+  color: #409eff;
+}
+
+.dark-theme .error-state,
+.dark-theme .empty-state {
+  color: #94a3b8;
+}
+
+.dark-theme .log-entry {
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .log-time {
+  color: #94a3b8;
+}
+
+.dark-theme .status-icon.success {
+  color: #52c41a;
+}
+
+.dark-theme .status-icon.failed {
+  color: #ff4d4f;
+}
+
+.dark-theme .field-label {
+  color: #94a3b8;
+}
+
+.dark-theme .field-value {
+  color: #e8eaed;
+}
+
+.dark-theme .success-text {
+  color: #52c41a;
+}
+
+.dark-theme .failed-text {
+  color: #ff4d4f;
+}
+
+.dark-theme .more-logs {
+  border-top-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .more-text {
+  color: #94a3b8;
+}
+
+.dark-theme .card-content::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+}
+
+.dark-theme .card-content::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.5);
 }
 </style>

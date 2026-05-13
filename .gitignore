@@ -5,7 +5,9 @@
 .kiro/
 backend/bin/
 frontend/dist/
+frontend/node_modules/
 frontend/*.zip
+backend/config/online.config.yaml
 # 编译产物
 bin/
 *.exe

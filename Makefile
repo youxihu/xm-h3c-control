@@ -76,7 +76,7 @@ build-frontend:
 .PHONY: build-docker
 build-docker:
 	@echo "🔨 构建后端Docker镜像..."
-	docker build -f docker/Dockerfile -t registry.cn-hangzhou.xingmukeji.com/tools/xm-switch-port:v0.0.4 .
+	docker build -f docker/Dockerfile -t registry.cn-hangzhou.xingmukeji.com/tools/xm-switch-port:v0.0.5 .
 
 # ==================== 依赖管理 ====================
 
@@ -91,4 +91,4 @@ clean-backend:
 .PHONY: clean-frontend
 clean-frontend:
 	@echo "🧹 清理前端构建产物..."
-	cd $(FRONTEND_DIR) && rm -rf dist/
+	cd $(FRONTEND_DIR) && rm -rf dist/ switch-port-frontend.zip
