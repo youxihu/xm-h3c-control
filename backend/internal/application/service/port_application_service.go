@@ -21,10 +21,18 @@ type PortApplicationService struct {
 	logRepo          repository.OperationLogRepository
 }
 
+// PortMappingDetail 端口映射详情
+type PortMappingDetail struct {
+	Port        int
+	Name        string
+	Description string
+}
+
 // PortDescription 端口描述配置
 type PortDescription struct {
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
+	Name        string
+	Description string
+	Mappings    []PortMappingDetail
 }
 
 // HostConfig 主机配置
@@ -113,7 +121,7 @@ func (s *PortApplicationService) ApplyBatchConfigWithLog(req dto.ApplyConfigRequ
 			if operatorIP != "" {
 				sourcePortIP := fmt.Sprintf("%d_unknown", config.InternalPort)
 				targetPortIP := fmt.Sprintf("%d_%s", config.InternalPort, config.InternalIP)
-				s.LogOperation(operatorIP, "端口切换", "失败", fmt.Sprintf("配置校验失败: %v", err), sourcePortIP, targetPortIP)
+				s.LogOperation(operatorIP, s.GetMappingDescription(config.InternalPort, config.ExternalPort), "失败", fmt.Sprintf("配置校验失败: %v", err), sourcePortIP, targetPortIP)
 			}
 			continue
 		}
@@ -164,7 +172,7 @@ func (s *PortApplicationService) ApplyBatchConfigWithLog(req dto.ApplyConfigRequ
 						config := req.Configs[i]
 						sourcePortIP := fmt.Sprintf("%d_%s", config.InternalPort, switchConfigs[i].CurrentInternalIP)
 						targetPortIP := fmt.Sprintf("%d_%s", config.InternalPort, config.InternalIP)
-						s.LogOperation(operatorIP, "端口切换", "失败", err.Error(), sourcePortIP, targetPortIP)
+						s.LogOperation(operatorIP, s.GetMappingDescription(config.InternalPort, config.ExternalPort), "失败", err.Error(), sourcePortIP, targetPortIP)
 					}
 				}
 			}
@@ -184,7 +192,7 @@ func (s *PortApplicationService) ApplyBatchConfigWithLog(req dto.ApplyConfigRequ
 					config := req.Configs[i]
 					sourcePortIP := fmt.Sprintf("%d_%s", config.InternalPort, switchConfigs[switchIndex].CurrentInternalIP)
 					targetPortIP := fmt.Sprintf("%d_%s", config.InternalPort, config.InternalIP)
-					s.LogOperation(operatorIP, "端口切换", "成功", "端口切换成功", sourcePortIP, targetPortIP)
+					s.LogOperation(operatorIP, s.GetMappingDescription(config.InternalPort, config.ExternalPort), "成功", "端口切换成功", sourcePortIP, targetPortIP)
 				}
 				switchIndex++
 			}
@@ -296,7 +304,7 @@ func (s *PortApplicationService) addIPOptions(portConfig *entity.PortConfig, int
 
 // convertToPortInfoDTO 转换为DTO
 func (s *PortApplicationService) convertToPortInfoDTO(portConfig *entity.PortConfig, allExternalPorts []int) dto.PortInfoDTO {
-	var options []dto.IPOptionDTO
+	options := make([]dto.IPOptionDTO, 0)
 	for _, opt := range portConfig.Options() {
 		options = append(options, dto.IPOptionDTO{
 			IP:           opt.IP,
@@ -392,7 +400,29 @@ func (s *PortApplicationService) getSupportedPorts(ip string) []int {
 	return ports
 }
 
-// LogOperation 记录操作日志
+// GetMappingDescription 根据内网端口和外网端口获取映射描述
+func (s *PortApplicationService) GetMappingDescription(internalPort, externalPort int) string {
+	portDesc, exists := s.portDescriptions[internalPort]
+	if !exists {
+		return "端口切换"
+	}
+	for _, m := range portDesc.Mappings {
+		if m.Port == externalPort {
+			return m.Description
+		}
+	}
+	return portDesc.Description
+}
+
+// GetDefaultMappingDescription 根据内网端口获取默认外网端口的映射描述
+func (s *PortApplicationService) GetDefaultMappingDescription(internalPort int) string {
+	externalPorts, exists := s.portMappings[internalPort]
+	if !exists || len(externalPorts) == 0 {
+		return "端口切换"
+	}
+	return s.GetMappingDescription(internalPort, externalPorts[0])
+}
+
 // LogOperation 记录操作日志
 func (s *PortApplicationService) LogOperation(operatorIP, operation, status, message, sourcePortIP, targetPortIP string) {
 	logEntry := entity.NewOperationLog(operatorIP, operation, status, message, sourcePortIP, targetPortIP)

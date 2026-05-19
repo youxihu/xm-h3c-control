@@ -61,7 +61,7 @@
             
             <div class="log-details">
               <div class="log-field">
-                <span class="field-label">操作类型：</span>
+                <span class="field-label">操作项：</span>
                 <span class="field-value">{{ log.operation || '端口映射切换' }}</span>
               </div>
               

@@ -38,7 +38,7 @@ export const fetchPortConfig = async () => {
   const response = await axios.get(`${API_BASE_URL}/api/port-config`)
   return response.data.ports.map(port => ({
     ...port,
-    options: [...port.options].sort((a, b) => {
+    options: [...(port.options || [])].sort((a, b) => {
       const ipA = a.ip.split('.').map(Number)
       const ipB = b.ip.split('.').map(Number)
       for (let i = 0; i < 4; i++) {

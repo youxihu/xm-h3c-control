@@ -56,10 +56,18 @@ type RevertConfig struct {
 	Hosts            map[string]HostConfig   `yaml:"hosts"`
 }
 
-// PortDescription 端口描述配置
-type PortDescription struct {
+// PortMappingDetail 端口映射详情
+type PortMappingDetail struct {
+	Port        int    `yaml:"port"`
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
+}
+
+// PortDescription 端口描述配置
+type PortDescription struct {
+	Name        string              `yaml:"name"`
+	Description string              `yaml:"description"`
+	Mappings    []PortMappingDetail `yaml:"mappings"`
 }
 
 // HostConfig 主机配置

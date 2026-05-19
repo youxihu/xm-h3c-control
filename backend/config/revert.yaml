@@ -11,6 +11,8 @@ port_mappings:
     - 36407
   48080: 
     - 36403
+  1883:
+    - 36409
 
 
 # 端口描述配置
@@ -52,7 +54,13 @@ port_descriptions:
       - port: 36403
         name: "dongwu_backend"
         description: "东吴后端端口"
-
+  1883:
+    name: "zhence_mqtt"
+    description: "侦测mqtt"
+    mappings:
+      - port: 36409
+        name: "zhence_mqtt"
+        description: "侦测mqtt"
 
 hosts:
   192.168.1.218:

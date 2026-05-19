@@ -6,7 +6,7 @@ FRONTEND_DIR = frontend
 BACKEND_MAIN = $(BACKEND_DIR)/cmd/main.go
 BACKEND_BIN = ./bin/$(APP_NAME)
 FRONTEND_DIST = $(FRONTEND_DIR)/dist
-
+VERSION=$(shell cat VERSION)
 # 默认目标
 .DEFAULT_GOAL := help
 
@@ -76,7 +76,7 @@ build-frontend:
 .PHONY: build-docker
 build-docker:
 	@echo "🔨 构建后端Docker镜像..."
-	docker build -f docker/Dockerfile -t registry.cn-hangzhou.xingmukeji.com/tools/xm-switch-port:v0.0.5 .
+	docker build -f docker/Dockerfile -t registry.cn-hangzhou.xingmukeji.com/tools/xm-switch-port:$(VERSION) .
 
 # ==================== 依赖管理 ====================
 

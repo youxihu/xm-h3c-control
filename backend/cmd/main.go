@@ -63,9 +63,18 @@ func main() {
 	// 转换端口描述配置格式
 	portDescriptions := make(map[int]service.PortDescription)
 	for port, desc := range revertCfg.PortDescriptions {
+		var mappings []service.PortMappingDetail
+		for _, m := range desc.Mappings {
+			mappings = append(mappings, service.PortMappingDetail{
+				Port:        m.Port,
+				Name:        m.Name,
+				Description: m.Description,
+			})
+		}
 		portDescriptions[port] = service.PortDescription{
 			Name:        desc.Name,
 			Description: desc.Description,
+			Mappings:    mappings,
 		}
 	}
 

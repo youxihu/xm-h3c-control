@@ -40,20 +40,20 @@ func (h *PortHandler) SwitchPort(c *gin.Context) {
 	}
 
 	// 获取操作者IP信息
-	operatorIP := utils.GetClientIP(c.Request)  // 获取客户端IP
+	operatorIP := utils.GetClientIP(c.Request) // 获取客户端IP
 
 	log.Printf("开始切换端口 %d 到内网IP %s，操作者: %s", req.InternalPort, req.NewInternalIP, operatorIP)
 
 	// 构建源端口IP和目标端口IP
 	sourcePortIP := fmt.Sprintf("%d_%s", req.InternalPort, req.CurrentInternalIP)
 	targetPortIP := fmt.Sprintf("%d_%s", req.InternalPort, req.NewInternalIP)
-	
+
 	if err := h.portService.SwitchPort(req); err != nil {
 		log.Printf("端口切换失败: %v", err)
-		
+
 		// 记录失败日志
-		h.portService.LogOperation(operatorIP, "端口切换", "失败", err.Error(), sourcePortIP, targetPortIP)
-		
+		h.portService.LogOperation(operatorIP, h.portService.GetDefaultMappingDescription(req.InternalPort), "失败", err.Error(), sourcePortIP, targetPortIP)
+
 		// 检查是否是"已经映射"的情况
 		if strings.Contains(err.Error(), "已经映射到") {
 			c.JSON(200, gin.H{
@@ -64,7 +64,7 @@ func (h *PortHandler) SwitchPort(c *gin.Context) {
 			})
 			return
 		}
-		
+
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
@@ -76,7 +76,7 @@ func (h *PortHandler) SwitchPort(c *gin.Context) {
 	}
 
 	// 记录成功日志
-	h.portService.LogOperation(operatorIP, "端口切换", "成功", "端口切换成功", sourcePortIP, targetPortIP)
+	h.portService.LogOperation(operatorIP, h.portService.GetDefaultMappingDescription(req.InternalPort), "成功", "端口切换成功", sourcePortIP, targetPortIP)
 
 	c.JSON(200, gin.H{
 		"message":         "端口切换成功",
@@ -95,7 +95,7 @@ func (h *PortHandler) ApplyConfig(c *gin.Context) {
 	}
 
 	// 获取操作者IP信息
-	operatorIP := utils.GetClientIP(c.Request)  // 获取客户端IP
+	operatorIP := utils.GetClientIP(c.Request) // 获取客户端IP
 
 	log.Printf("开始批量应用配置，操作者: %s，共 %d 个端口", operatorIP, len(req.Configs))
 
@@ -137,13 +137,13 @@ func (h *PortHandler) GetPortStatus(c *gin.Context) {
 func (h *PortHandler) GetPortStatusFromCache(c *gin.Context) {
 	// 先尝试从缓存获取
 	cachedStatus, err := h.cacheRepo.GetPortStatus()
-	
+
 	if err != nil {
 		log.Printf("从缓存获取状态失败，需要查询实时数据并更新缓存: %v", err)
 		h.getStatusAndUpdateCache(c)
 		return
 	}
-	
+
 	if len(cachedStatus) == 0 {
 		log.Printf("缓存为空，需要查询实时数据并更新缓存")
 		h.getStatusAndUpdateCache(c)
@@ -170,12 +170,11 @@ func (h *PortHandler) getStatusAndUpdateCache(c *gin.Context) {
 	c.JSON(200, status)
 }
 
-
 // GetOperationLogs 获取操作日志处理器
 func (h *PortHandler) GetOperationLogs(c *gin.Context) {
 	// 默认获取最近20条日志
 	limit := 20
-	
+
 	logs, err := h.portService.GetOperationLogs(limit)
 	if err != nil {
 		log.Printf("获取操作日志失败: %v", err)
