@@ -70,6 +70,7 @@ hosts:
       drone_data_link: 61100
       tianbo_luoguang: 62201
       dongwu_backend: 48080
+      zhence_mqtt: 1883
   192.168.1.228:
     env: zc-test
     services:
@@ -89,4 +90,7 @@ hosts:
     services:
       drone_control_link: 61002
       drone_data_link: 61100
-  
+  192.168.1.232:
+    env: mqtt-test
+    services:
+      zhence_mqtt: 1883
