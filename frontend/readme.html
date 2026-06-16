@@ -124,27 +124,12 @@
             color: #e65100;
         }
 
-        .env-dw-dev {
-            background: #fce4ec;
-            color: #c2185b;
-        }
-        
         .env-zg {
-            background: #f3e5f5;
-            color: #6a1b9a;
+            background: #eff6ff;
+            color: #3b82f6;
         }
         
-        .env-zg-platform {
-            background: #f3e5f5;
-            color: #6a1b9a;
-        }
-
         .env-hangshi {
-            background: #e0f2f1;
-            color: #00695c;
-        }
-
-        .env-hangshi-platform {
             background: #e0f2f1;
             color: #00695c;
         }
@@ -212,6 +197,19 @@
             margin-bottom: 10px;
         }
         
+        .pending {
+            background: #fff7ed;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .pending h4 {
+            color: #f97316;
+            margin-bottom: 10px;
+        }
+        
         .code {
             background: #f5f6f8;
             border: 1px solid #e2e4e8;
@@ -252,120 +250,38 @@
             <!-- 系统概述 -->
             <div class="section">
                 <h2>系统概述</h2>
-                <p>本工具专为H3C MSR2600 路由器端口映射管理而设计，支持在多个不同环境之间快速切换端口映射配置。通过Web界面可以直观地管理端口映射，支持批量操作和实时状态监控。</p>
+                <p>本工具专为H3C MSR2600 路由器端口映射管理而设计，采用全新的交互架构，支持在多个不同环境之间快速切换端口映射配置。</p>
                 
                 <div class="info">
                     <h4>核心功能</h4>
                     <ul>
-                        <li>支持多组外网端口的映射切换，覆盖多种服务类型</li>
-                        <li>实时显示当前端口映射状态</li>
-                        <li>批量端口切换操作，一键应用配置</li>
-                        <li>完整的操作日志记录，可追溯历史变更</li>
-                        <li>极简商务风格Web界面，操作直观便捷</li>
-                        <li>配置驱动架构，端口和环境可通过配置文件灵活扩展</li>
+                        <li><strong>状态分离</strong>：清晰区分当前生效状态和待切换状态</li>
+                        <li><strong>暂存机制</strong>：支持为多个端口分别选择目标后批量保存</li>
+                        <li><strong>实时监控</strong>：顶部状态栏实时显示当前端口映射状态</li>
+                        <li><strong>单行布局</strong>：顶部状态栏采用一行4个的固定网格布局</li>
+                        <li><strong>操作日志</strong>：完整的操作日志记录，可追溯历史变更</li>
+                        <li><strong>暗黑模式</strong>：支持明暗主题切换</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- 当前配置概览 -->
+            <!-- 页面布局说明 -->
             <div class="section">
-                <h2>当前配置概览</h2>
+                <h2>页面布局说明</h2>
                 
                 <div class="info">
-                    <h4>端口映射机制</h4>
-                    <p>系统基于配置文件驱动，支持灵活的端口映射管理：</p>
+                    <h4>三大区域</h4>
                     <ul>
-                        <li><strong>内网端口映射</strong>：支持一个内网端口映射到多个外网端口</li>
-                        <li><strong>环境管理</strong>：支持多个环境配置，每个环境可包含不同的服务组合</li>
-                        <li><strong>服务描述</strong>：每个端口都有详细的名称和功能描述，便于识别和管理</li>
+                        <li><strong>顶部状态栏</strong>：只读的全局端口映射状态概览，一行4个，超过自动换行</li>
+                        <li><strong>左侧端口列表</strong>：选择要操作的端口，显示端口名称和已配置状态</li>
+                        <li><strong>右侧详情区</strong>：显示当前生效状态、暂存目标和可切换选项</li>
                     </ul>
-                </div>
-                
-                <h3>当前已配置的端口映射</h3>
-                <table class="port-table">
-                    <thead>
-                        <tr>
-                            <th>内网端口</th>
-                            <th>映射的外网端口</th>
-                            <th>服务说明</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>61002</td>
-                            <td>61002, 61003</td>
-                            <td>侦测无人机控制链路端口</td>
-                        </tr>
-                        <tr>
-                            <td>61100</td>
-                            <td>61100, 61101</td>
-                            <td>侦测无人机数据链路端口</td>
-                        </tr>
-                        <tr>
-                            <td>62201</td>
-                            <td>62201, 62202</td>
-                            <td>天波珞光设备</td>
-                        </tr>
-                        <tr>
-                            <td>48080</td>
-                            <td>48099</td>
-                            <td>东吴后端端口</td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <h3>当前已配置的环境</h3>
-                <table class="port-table">
-                    <thead>
-                        <tr>
-                            <th>环境名称</th>
-                            <th>IP地址</th>
-                            <th>包含服务</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><span class="env-tag env-dev">开发环境 (dev)</span></td>
-                            <td>192.168.1.107</td>
-                            <td>无人机控制链路、数据链路、天波珞光</td>
-                        </tr>
-                        <tr>
-                            <td><span class="env-tag env-zc">侦测测试 (zc-test)</span></td>
-                            <td>192.168.1.94</td>
-                            <td>无人机控制链路、数据链路、天波珞光</td>
-                        </tr>
-                        <tr>
-                            <td><span class="env-tag env-hangshi">杭实环境 (zc-hangshi)</span></td>
-                            <td>192.168.1.166</td>
-                            <td>无人机控制链路、数据链路、天波珞光</td>
-                        </tr>
-                        <tr>
-                            <td><span class="env-tag env-dw-dev">东吴开发 (dw-dev)</span></td>
-                            <td>192.168.1.109</td>
-                            <td>东吴后端服务</td>
-                        </tr>
-                        <tr>
-                            <td><span class="env-tag env-dw">东吴测试 (dw-test)</span></td>
-                            <td>192.168.1.116</td>
-                            <td>东吴后端服务</td>
-                        </tr>
-                        <tr>
-                            <td><span class="env-tag env-zg">飞行综管测试 (zg-test)</span></td>
-                            <td>192.168.1.113</td>
-                            <td>无人机控制链路、数据链路、天波珞光</td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <div class="warning">
-                    <h4>配置说明</h4>
-                    <p>以上端口和环境配置信息均由系统配置文件动态生成，如需新增或修改端口映射，请联系系统管理员更新配置文件。</p>
                 </div>
             </div>
 
-            <!-- 使用步骤 -->
+            <!-- 交互使用步骤 -->
             <div class="section">
-                <h2>使用步骤</h2>
+                <h2>交互使用步骤</h2>
                 
                 <div class="step-list">
                     <div class="step-item">
@@ -375,31 +291,42 @@
                     </div>
                     
                     <div class="step-item">
-                        <h4>查看当前状态</h4>
-                        <p>页面顶部的"当前端口映射状态"区域显示所有端口的实时映射情况：</p>
+                        <h4>查看全局状态</h4>
+                        <p>页面顶部的"当前端口映射状态"区域以网格布局显示所有端口的实时映射情况：</p>
                         <ul>
-                            <li>绿色图标：配置已同步，无待保存变更</li>
-                            <li>黄色图标：有待保存的配置变更</li>
+                            <li><strong>绿色卡片</strong>：已配置的端口，显示当前映射的目标IP</li>
+                            <li><strong>灰色卡片</strong>：未配置的端口</li>
+                            <li>该区域为<strong>只读</strong>，不可点击操作</li>
                         </ul>
                     </div>
                     
                     <div class="step-item">
-                        <h4>选择目标环境</h4>
-                        <p>在"端口映射配置"区域，为每个端口选择要切换到的目标环境：</p>
+                        <h4>选择要操作的端口</h4>
+                        <p>在左侧"端口映射列表"中点击要操作的端口：</p>
                         <ul>
-                            <li>点击对应端口卡片中的环境选项</li>
-                            <li>系统会实时显示配置变更状态</li>
-                            <li>可以同时为多个端口选择不同的目标环境</li>
+                            <li>点击端口卡片将其选中，右侧会显示该端口的详情</li>
+                            <li>再次点击已选中的端口可以取消选择</li>
+                            <li>有暂存目标的端口会显示橙色边框和暂存预览</li>
                         </ul>
                     </div>
                     
                     <div class="step-item">
-                        <h4>应用配置</h4>
-                        <p>选择完成后，点击"保存并应用配置"按钮：</p>
+                        <h4>选择切换目标</h4>
+                        <p>在右侧详情区为选中的端口选择目标：</p>
                         <ul>
-                            <li>系统会批量执行端口切换操作</li>
-                            <li>切换过程中会显示进度提示</li>
-                            <li>完成后状态区会更新为最新的映射情况</li>
+                            <li><strong>当前生效状态</strong>：绿色卡片显示，只读不可操作</li>
+                            <li><strong>暂存目标</strong>：橙色卡片显示（如有），可点击"清除"按钮取消</li>
+                            <li><strong>可切换目标</strong>：点击任一选项将其设为暂存目标</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step-item">
+                        <h4>批量保存配置</h4>
+                        <p>为多个端口选择好目标后，在左侧列表上方点击"批量保存"按钮：</p>
+                        <ul>
+                            <li>按钮会显示待保存的项数</li>
+                            <li>系统会批量执行所有暂存的端口切换</li>
+                            <li>切换过程中会显示loading状态</li>
                         </ul>
                     </div>
                     
@@ -415,6 +342,31 @@
                 </div>
             </div>
 
+            <!-- 交互原则说明 -->
+            <div class="section">
+                <h2>交互原则说明</h2>
+                
+                <div class="pending">
+                    <h4>关键设计理念</h4>
+                    <ul>
+                        <li><strong>选择与操作分离</strong>：左侧选择对象，右侧执行操作</li>
+                        <li><strong>显式确认</strong>：所有变更必须通过"批量保存"按钮才能生效</li>
+                        <li><strong>状态隔离</strong>：当前生效状态与待切换状态完全分离</li>
+                        <li><strong>暂存机制</strong>：支持为多个端口预配置后一次性应用</li>
+                    </ul>
+                </div>
+                
+                <div class="warning">
+                    <h4>暂存状态说明</h4>
+                    <ul>
+                        <li>选择可切换目标后，目标会被暂存，不会立即生效</li>
+                        <li>有暂存目标的端口在列表中会显示橙色边框和预览</li>
+                        <li>可以随时清除单个端口的暂存目标</li>
+                        <li>只有点击"批量保存"后，所有暂存的变更才会真正应用</li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- 注意事项 -->
             <div class="section">
                 <h2>注意事项</h2>
@@ -422,8 +374,7 @@
                 <div class="warning">
                     <h4>重要提醒</h4>
                     <ul>
-                        <li><strong>配置文件驱动</strong>：系统端口和环境配置由配置文件管理，新增或修改需更新配置文件</li>
-                        <li><strong>环境限制</strong>：每个端口只能切换到其支持的环境，具体环境由配置文件定义</li>
+                        <li><strong>重复映射检测</strong>：系统会自动检测是否会造成重复映射，并给出确认提示</li>
                         <li><strong>网络影响</strong>：端口切换会短暂中断对应服务的网络连接</li>
                         <li><strong>权限要求</strong>：操作需要路由器管理员权限</li>
                     </ul>
@@ -432,6 +383,7 @@
                 <div class="info">
                     <h4>使用建议</h4>
                     <ul>
+                        <li>建议先为多个端口选择好目标，再统一批量保存</li>
                         <li>切换前确认目标环境服务正常运行</li>
                         <li>建议在业务低峰期进行端口切换</li>
                         <li>切换后验证服务连接是否正常</li>
@@ -449,7 +401,7 @@
                     <li><strong>页面无法加载</strong>：检查网络连接和服务器状态</li>
                     <li><strong>状态显示异常</strong>：刷新页面或检查路由器连接</li>
                     <li><strong>切换失败</strong>：查看操作日志中的错误信息</li>
-                    <li><strong>配置不生效</strong>：确认目标环境IP地址正确</li>
+                    <li><strong>暂存目标丢失</strong>：刷新页面会清空所有暂存目标</li>
                 </ul>
                 
                 <h3>联系支持</h3>

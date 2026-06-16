@@ -92,6 +92,116 @@ export function usePortConfig() {
     }
   }
 
+  const switchPort = async (externalPort, targetInternalIp) => {
+    const expandedPortConfigs = getExpandedPorts()
+    const portConfig = expandedPortConfigs.find(p => p.external_port === externalPort)
+
+    if (!portConfig) {
+      ElMessage.error('找不到端口配置')
+      return
+    }
+
+    // 构建单个切换配置
+    const config = {
+      internal_port: portConfig.internal_port,
+      internal_ip: targetInternalIp,
+      external_port: externalPort
+    }
+
+    // 检测本次变更是否引入重复映射
+    const afterState = { ...originalMappings.value }
+    afterState[`port_${externalPort}`] = targetInternalIp
+
+    const extToInfo = {}
+    expandedPortConfigs.forEach(p => {
+      const allPorts = p.all_external_ports || [p.external_port]
+      const idx = allPorts.indexOf(p.external_port)
+      const label = allPorts.length > 1 ? `${p.description}-${idx + 1}` : p.description
+      extToInfo[p.external_port] = { internalPort: p.internal_port, label, externalIP: p.external_ip }
+    })
+
+    const groups = {}
+    Object.entries(afterState).forEach(([key, ip]) => {
+      if (!ip) return
+      const extPort = parseInt(key.replace('port_', ''))
+      const info = extToInfo[extPort]
+      if (!info) return
+      const gKey = `${ip}|${info.internalPort}`
+      if (!groups[gKey]) groups[gKey] = []
+      groups[gKey].push({ extPort, ...info })
+    })
+
+    // 只保留至少有一个外网端口是本次变更的组
+    const activeGroups = {}
+    Object.entries(groups).forEach(([gKey, entries]) => {
+      if (entries.length <= 1) return
+      if (entries.some(e => e.extPort === externalPort)) {
+        activeGroups[gKey] = entries
+      }
+    })
+
+    if (Object.keys(activeGroups).length > 0) {
+      const tableRows = []
+      Object.entries(activeGroups).forEach(([gKey, entries]) => {
+        const [ip, intPortStr] = gKey.split('|')
+        entries.sort((a, b) => a.extPort - b.extPort)
+        entries.forEach((e, idx) => {
+          tableRows.push(
+            `<tr>` +
+            `<td style="padding:6px 12px;border-right:1px solid #ebeef5;vertical-align:top;font-weight:500;color:#303133;">${idx === 0 ? `${ip}:${intPortStr}` : `<span style="color:#e6a23c;">&#8595; 重复映射</span>`}</td>` +
+            `<td style="padding:6px 12px;line-height:1.7;">${e.label}<br><span style="color:#909399;font-size:12px;">${e.externalIP}:${e.extPort}</span></td>` +
+            `</tr>`
+          )
+        })
+      })
+
+      const html = `
+        <div style="text-align:left;">
+          <p style="margin:0 0 10px;color:#303133;font-size:14px;">以下内网地址将会出现重复映射：</p>
+          <table style="width:100%;border-collapse:collapse;border:1px solid #ebeef5;border-radius:4px;">
+            <thead>
+              <tr style="background:#f5f7fa;">
+                <th style="padding:8px 12px;border-right:1px solid #ebeef5;text-align:left;font-weight:600;color:#606266;">内网地址</th>
+                <th style="padding:8px 12px;text-align:left;font-weight:600;color:#606266;">外网映射目标</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows.join('')}</tbody>
+          </table>
+          <p style="margin:12px 0 0;color:#303133;font-size:14px;">是否确认继续配置？</p>
+        </div>`
+
+      try {
+        await ElMessageBox.confirm(html, '重复映射提醒', {
+          dangerouslyUseHTMLString: true,
+          confirmButtonText: '确认继续',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+      } catch {
+        return
+      }
+    }
+
+    saving.value = true
+    try {
+      await applyConfig([config])
+      await loadPortStatus()
+      if (operationLogsRef.value) {
+        operationLogsRef.value.refreshLogs()
+      }
+      ElMessage.success('配置保存成功！')
+    } catch (error) {
+      console.error('保存配置失败:', error)
+      if (error.response?.data?.message) {
+        ElMessage.error(`保存失败: ${error.response.data.message}`)
+      } else {
+        ElMessage.error('保存配置失败，请重试')
+      }
+    } finally {
+      saving.value = false
+    }
+  }
+
   const saveConfiguration = async () => {
     const expandedPortConfigs = getExpandedPorts()
 
@@ -223,6 +333,7 @@ export function usePortConfig() {
     hasMultiplePorts,
     loadPortConfig,
     loadPortStatus,
-    saveConfiguration
+    saveConfiguration,
+    switchPort
   }
 }
