@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
             line-height: 1.6;
@@ -19,7 +20,7 @@
             min-height: 100vh;
             padding: 4vh 24px;
         }
-        
+
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -29,7 +30,7 @@
             border: 1px solid #e2e4e8;
             overflow: hidden;
         }
-        
+
         .header {
             background: #ffffff;
             color: #1f2937;
@@ -37,26 +38,26 @@
             text-align: center;
             border-bottom: 1px solid #e2e4e8;
         }
-        
+
         .header h1 {
             font-size: 28px;
             margin-bottom: 10px;
             font-weight: 500;
         }
-        
+
         .header p {
             font-size: 16px;
             color: #6b7280;
         }
-        
+
         .content {
             padding: 40px;
         }
-        
+
         .section {
             margin-bottom: 40px;
         }
-        
+
         .section h2 {
             color: #1f2937;
             font-size: 22px;
@@ -65,14 +66,14 @@
             padding-bottom: 10px;
             font-weight: 500;
         }
-        
+
         .section h3 {
             color: #374151;
             font-size: 18px;
             margin: 20px 0 15px 0;
             font-weight: 500;
         }
-        
+
         .port-table {
             width: 100%;
             border-collapse: collapse;
@@ -81,25 +82,25 @@
             border-radius: 8px;
             overflow: hidden;
         }
-        
+
         .port-table th,
         .port-table td {
             padding: 15px;
             text-align: left;
             border-bottom: 1px solid #e2e4e8;
         }
-        
+
         .port-table th {
             background: #f5f6f8;
             color: #1f2937;
             font-weight: 600;
             border-bottom: 2px solid #e2e4e8;
         }
-        
+
         .port-table tr:hover {
             background-color: #f5f6f8;
         }
-        
+
         .env-tag {
             display: inline-block;
             padding: 4px 12px;
@@ -108,12 +109,12 @@
             font-weight: 500;
             margin-right: 8px;
         }
-        
+
         .env-dev {
             background: #e8f5e9;
             color: #2e7d32;
         }
-        
+
         .env-zc {
             background: #e3f2fd;
             color: #1565c0;
@@ -128,7 +129,7 @@
             background: #eff6ff;
             color: #3b82f6;
         }
-        
+
         .env-hangshi {
             background: #e0f2f1;
             color: #00695c;
@@ -137,7 +138,7 @@
         .step-list {
             counter-reset: step-counter;
         }
-        
+
         .step-item {
             counter-increment: step-counter;
             margin-bottom: 20px;
@@ -147,7 +148,7 @@
             border-left: 4px solid #3b82f6;
             position: relative;
         }
-        
+
         .step-item::before {
             content: counter(step-counter);
             position: absolute;
@@ -164,13 +165,13 @@
             font-weight: bold;
             font-size: 14px;
         }
-        
+
         .step-item h4 {
             color: #3b82f6;
             margin-bottom: 10px;
             font-size: 16px;
         }
-        
+
         .warning {
             background: #fefce8;
             border: 1px solid #eab308;
@@ -178,12 +179,12 @@
             padding: 15px;
             margin: 20px 0;
         }
-        
+
         .warning h4 {
             color: #ca8a04;
             margin-bottom: 10px;
         }
-        
+
         .info {
             background: #eff6ff;
             border: 1px solid #3b82f6;
@@ -191,12 +192,12 @@
             padding: 15px;
             margin: 20px 0;
         }
-        
+
         .info h4 {
             color: #3b82f6;
             margin-bottom: 10px;
         }
-        
+
         .pending {
             background: #fff7ed;
             border: 1px solid #f97316;
@@ -204,12 +205,12 @@
             padding: 15px;
             margin: 20px 0;
         }
-        
+
         .pending h4 {
             color: #f97316;
             margin-bottom: 10px;
         }
-        
+
         .code {
             background: #f5f6f8;
             border: 1px solid #e2e4e8;
@@ -219,7 +220,7 @@
             font-size: 14px;
             margin: 10px 0;
         }
-        
+
         .footer {
             background: #f5f6f8;
             padding: 20px;
@@ -228,51 +229,97 @@
             font-size: 14px;
             border-top: 1px solid #e2e4e8;
         }
-        
-        ul, ol {
+
+        ul,
+        ol {
             padding-left: 20px;
             margin: 10px 0;
         }
-        
+
         li {
             margin-bottom: 8px;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
             <h1>星目路由器端口快切工具</h1>
             <p>H3C路由器端口映射快速切换系统 - 使用说明文档</p>
         </div>
-        
+
         <div class="content">
-            <!-- 系统概述 -->
+            <!-- 工具定位与使用场景说明 -->
             <div class="section">
-                <h2>系统概述</h2>
-                <p>本工具专为H3C MSR2600 路由器端口映射管理而设计，采用全新的交互架构，支持在多个不同环境之间快速切换端口映射配置。</p>
-                
+                <h2>工具定位与使用场景说明</h2>
+
+                <p>
+                    本工具专为 H3C MSR2600 路由器端口映射管理而设计，
+                    适用于公网出口地址与端口已固化，但需要在不同后端服务或运行环境之间
+                    快速切换端口映射配置的场景。
+                </p>
+
                 <div class="info">
-                    <h4>核心功能</h4>
+                    <h4>一、工具定位</h4>
+                    <p>
+                        本工具旨在解决<strong>“公网出口地址已固化，但需频繁变更后端服务”</strong>的运维痛点。
+                        通过提供可视化、自助式的端口切换能力，
+                        免除运维人员频繁登录路由器修改底层配置的流程，
+                        实现后端映射路径的<strong>秒级切换</strong>。
+                    </p>
+                </div>
+
+                <div class="info">
+                    <h4>二、核心使用场景</h4>
+                    <ol>
+                        <li>
+                            <strong>客户端或设备端配置固化场景</strong><br>
+                            当公网 IP 和端口已经硬编码在客户端程序、硬件设备固件、
+                            物联网终端或第三方对接系统中，且无法或不便修改前端配置时，
+                            可在公网访问地址完全不变的前提下，
+                            将流量快速切换至不同的内网服务器或端口。
+                        </li>
+                        <li>
+                            <strong>多环境快速调试与切换场景</strong><br>
+                            在开发、测试、预发布等不同环境进行联调时，
+                            外部调用方配置保持不变，
+                            仅需通过本工具切换指定公网端口所指向的内网后端，
+                            即可实现不同环境之间的快速切换，提升调试效率。
+                        </li>
+                        <li>
+                            <strong>故障应急与容灾切换场景</strong><br>
+                            当当前映射的内网后端服务出现异常、宕机或需要紧急维护时，
+                            可立即将公网端口切换至健康的备用内网节点，
+                            快速恢复业务，缩短故障响应与恢复时间。
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="warning">
+                    <h4>三、适用边界与常规流程说明</h4>
                     <ul>
-                        <li><strong>状态分离</strong>：清晰区分当前生效状态和待切换状态</li>
-                        <li><strong>暂存机制</strong>：支持为多个端口分别选择目标后批量保存</li>
-                        <li><strong>实时监控</strong>：顶部状态栏实时显示当前端口映射状态</li>
-                        <li><strong>单行布局</strong>：顶部状态栏采用一行4个的固定网格布局</li>
-                        <li><strong>操作日志</strong>：完整的操作日志记录，可追溯历史变更</li>
-                        <li><strong>暗黑模式</strong>：支持明暗主题切换</li>
+                        <li>
+                            <strong>适用本工具（端口快切）</strong>：
+                            公网 IP 和端口已对外发布且不可更改，
+                            仅需变更后端内网 IP 或端口映射路径。
+                        </li>
+                        <li>
+                            <strong>不适用本工具（常规路由器配置）</strong>：
+                            日常新增业务需求，需要对外提供全新的公网端口映射。
+                            此类需求不属于快切范畴，请联系运维人员在路由器上新增映射条目。
+                        </li>
                     </ul>
                 </div>
             </div>
-
             <!-- 页面布局说明 -->
             <div class="section">
                 <h2>页面布局说明</h2>
-                
+
                 <div class="info">
                     <h4>三大区域</h4>
                     <ul>
-                        <li><strong>顶部状态栏</strong>：只读的全局端口映射状态概览，一行4个，超过自动换行</li>
+                        <li><strong>顶部状态栏</strong>：只读的全局端口映射状态概览，用于查看公网出口当前指向</li>
                         <li><strong>左侧端口列表</strong>：选择要操作的端口，显示端口名称和已配置状态</li>
                         <li><strong>右侧详情区</strong>：显示当前生效状态、暂存目标和可切换选项</li>
                     </ul>
@@ -282,14 +329,14 @@
             <!-- 交互使用步骤 -->
             <div class="section">
                 <h2>交互使用步骤</h2>
-                
+
                 <div class="step-list">
                     <div class="step-item">
                         <h4>访问系统</h4>
                         <p>在浏览器中打开工具地址，系统会自动加载当前的端口映射状态。</p>
                         <div class="code">http://192.168.1.228:8898</div>
                     </div>
-                    
+
                     <div class="step-item">
                         <h4>查看全局状态</h4>
                         <p>页面顶部的"当前端口映射状态"区域以网格布局显示所有端口的实时映射情况：</p>
@@ -299,7 +346,7 @@
                             <li>该区域为<strong>只读</strong>，不可点击操作</li>
                         </ul>
                     </div>
-                    
+
                     <div class="step-item">
                         <h4>选择要操作的端口</h4>
                         <p>在左侧"端口映射列表"中点击要操作的端口：</p>
@@ -309,7 +356,7 @@
                             <li>有暂存目标的端口会显示橙色边框和暂存预览</li>
                         </ul>
                     </div>
-                    
+
                     <div class="step-item">
                         <h4>选择切换目标</h4>
                         <p>在右侧详情区为选中的端口选择目标：</p>
@@ -319,7 +366,7 @@
                             <li><strong>可切换目标</strong>：点击任一选项将其设为暂存目标</li>
                         </ul>
                     </div>
-                    
+
                     <div class="step-item">
                         <h4>批量保存配置</h4>
                         <p>为多个端口选择好目标后，在左侧列表上方点击"批量保存"按钮：</p>
@@ -329,7 +376,7 @@
                             <li>切换过程中会显示loading状态</li>
                         </ul>
                     </div>
-                    
+
                     <div class="step-item">
                         <h4>查看操作日志</h4>
                         <p>右侧的操作日志面板记录了所有切换操作：</p>
@@ -345,7 +392,7 @@
             <!-- 交互原则说明 -->
             <div class="section">
                 <h2>交互原则说明</h2>
-                
+
                 <div class="pending">
                     <h4>关键设计理念</h4>
                     <ul>
@@ -355,7 +402,7 @@
                         <li><strong>暂存机制</strong>：支持为多个端口预配置后一次性应用</li>
                     </ul>
                 </div>
-                
+
                 <div class="warning">
                     <h4>暂存状态说明</h4>
                     <ul>
@@ -370,16 +417,15 @@
             <!-- 注意事项 -->
             <div class="section">
                 <h2>注意事项</h2>
-                
+
                 <div class="warning">
                     <h4>重要提醒</h4>
                     <ul>
                         <li><strong>重复映射检测</strong>：系统会自动检测是否会造成重复映射，并给出确认提示</li>
                         <li><strong>网络影响</strong>：端口切换会短暂中断对应服务的网络连接</li>
-                        <li><strong>权限要求</strong>：操作需要路由器管理员权限</li>
                     </ul>
                 </div>
-                
+
                 <div class="info">
                     <h4>使用建议</h4>
                     <ul>
@@ -395,7 +441,7 @@
             <!-- 故障排除 -->
             <div class="section">
                 <h2>故障排除</h2>
-                
+
                 <h3>常见问题</h3>
                 <ul>
                     <li><strong>页面无法加载</strong>：检查网络连接和服务器状态</li>
@@ -403,7 +449,7 @@
                     <li><strong>切换失败</strong>：查看操作日志中的错误信息</li>
                     <li><strong>暂存目标丢失</strong>：刷新页面会清空所有暂存目标</li>
                 </ul>
-                
+
                 <h3>联系支持</h3>
                 <p>如遇到技术问题，请联系系统管理员并提供：</p>
                 <ul>
@@ -413,10 +459,11 @@
                 </ul>
             </div>
         </div>
-        
+
         <div class="footer">
             <p>© 2026 星目路由器端口快切工具 | 技术支持：系统管理员</p>
         </div>
     </div>
 </body>
+
 </html>
